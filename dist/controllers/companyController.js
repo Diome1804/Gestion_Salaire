@@ -1,14 +1,21 @@
 import { companySchema, updateCompanySchema } from "../validations/company.js";
 export class CompanyController {
     companyService;
-    constructor(companyService) {
+    fileUploadService;
+    constructor(companyService, fileUploadService) {
         this.companyService = companyService;
+        this.fileUploadService = fileUploadService;
         //
     }
     async createCompany(req, res) {
         try {
             const data = companySchema.parse(req.body);
-            const company = await this.companyService.createCompany(data);
+            let logoUrl;
+            if (req.file) {
+                logoUrl = await this.fileUploadService.uploadFile(req.file);
+            }
+            const companyData = { ...data, logo: logoUrl };
+            const company = await this.companyService.createCompany(companyData);
             res.json({ message: "Entreprise créée", company });
         }
         catch (error) {
@@ -41,7 +48,12 @@ export class CompanyController {
             }
             const id = parseInt(req.params.id);
             const data = updateCompanySchema.parse(req.body);
-            const company = await this.companyService.updateCompany(id, data);
+            let logoUrl;
+            if (req.file) {
+                logoUrl = await this.fileUploadService.uploadFile(req.file);
+            }
+            const companyData = { ...data, logo: logoUrl };
+            const company = await this.companyService.updateCompany(id, companyData);
             res.json({ message: "Entreprise mise à jour", company });
         }
         catch (error) {

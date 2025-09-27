@@ -6,16 +6,18 @@ import { AuthController } from "./controllers/authController.js";
 import { CompanyRepository } from "./repositories/companyRepository.js";
 import { CompanyService } from "./services/companyService.js";
 import { CompanyController } from "./controllers/companyController.js";
+import { CloudinaryFileUploadService } from "./services/cloudinaryFileUploadService.js";
 // Instantiate dependencies
 const userRepository = new UserRepository();
 const hashUtils = new HashUtils();
 const jwtUtils = new JwtUtils();
 const companyRepository = new CompanyRepository();
+const fileUploadService = new CloudinaryFileUploadService();
 // Inject into services
 const authService = new AuthService(userRepository, hashUtils, jwtUtils);
 const companyService = new CompanyService(companyRepository);
 // Inject into controllers
 const authController = new AuthController(authService);
-const companyController = new CompanyController(companyService);
+const companyController = new CompanyController(companyService, fileUploadService);
 export { authController, companyController };
 //# sourceMappingURL=container.js.map

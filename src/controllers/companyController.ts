@@ -1,18 +1,24 @@
 import type { Request, Response } from "express";
 import type { ICompanyController } from "./ICompanyController.js";
 import type { ICompanyService } from "../services/ICompanyService.js";
+import type { IFileUploadService } from "../services/IFileUploadService.js";
 import { companySchema, updateCompanySchema } from "../validations/company.js";
 
 export class CompanyController implements ICompanyController {
 
-  constructor(private companyService: ICompanyService) {
+  constructor(private companyService: ICompanyService, private fileUploadService: IFileUploadService) {
     //
   }
 
   async createCompany(req: Request, res: Response): Promise<void> {
     try {
       const data = companySchema.parse(req.body);
-      const company = await this.companyService.createCompany(data);
+      let logoUrl: string | undefined;
+      if ((req as any).file) {
+        logoUrl = await this.fileUploadService.uploadFile((req as any).file);
+      }
+      const companyData = { ...data, logo: logoUrl };
+      const company = await this.companyService.createCompany(companyData);
       res.json({ message: "Entreprise créée", company });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -45,7 +51,12 @@ export class CompanyController implements ICompanyController {
       }
       const id = parseInt(req.params.id);
       const data = updateCompanySchema.parse(req.body);
-      const company = await this.companyService.updateCompany(id, data);
+      let logoUrl: string | undefined;
+      if ((req as any).file) {
+        logoUrl = await this.fileUploadService.uploadFile((req as any).file);
+      }
+      const companyData = { ...data, logo: logoUrl };
+      const company = await this.companyService.updateCompany(id, companyData);
       res.json({ message: "Entreprise mise à jour", company });
     } catch (error: any) {
       res.status(400).json({ error: error.message });

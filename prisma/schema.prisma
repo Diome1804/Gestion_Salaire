@@ -1,0 +1,46 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+
+  
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Users {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(SUPERADMIN)
+  companyId Int?
+  company   Company? @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Company {
+  id         Int      @id @default(autoincrement())
+  logo       String?
+  address    String
+  currency   String
+  periodType PeriodType
+  users      Users[]
+  createdAt  DateTime @default(now())
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  CAISSIER
+}
+
+enum PeriodType {
+  MONTHLY
+  WEEKLY
+  DAILY
+}
+
+
+

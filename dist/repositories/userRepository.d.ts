@@ -7,6 +7,16 @@ export declare class UserRepository implements IUserRepository {
         email: string;
         password: string;
         role?: Role;
+        companyId?: number;
+        isTempPassword?: boolean;
     }): Promise<User>;
+    update(id: number, data: Partial<{
+        name: string;
+        email: string;
+        password: string;
+        role: Role;
+        companyId: number;
+        isTempPassword: boolean;
+    }>): Promise<User>;
 }
 //# sourceMappingURL=userRepository.d.ts.map

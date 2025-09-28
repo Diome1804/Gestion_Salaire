@@ -8,7 +8,11 @@ export class UserRepository implements IUserRepository {
     return prisma.users.findUnique({ where: { email } });
   }
 
-  async create(data: { name: string; email: string; password: string; role?: Role }): Promise<User> {
+  async create(data: { name: string; email: string; password: string; role?: Role; companyId?: number; isTempPassword?: boolean }): Promise<User> {
     return prisma.users.create({ data });
+  }
+
+  async update(id: number, data: Partial<{ name: string; email: string; password: string; role: Role; companyId: number; isTempPassword: boolean }>): Promise<User> {
+    return prisma.users.update({ where: { id }, data });
   }
 }

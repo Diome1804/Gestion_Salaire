@@ -7,6 +7,7 @@ import { CompanyRepository } from "./repositories/companyRepository.js";
 import { CompanyService } from "./services/companyService.js";
 import { CompanyController } from "./controllers/companyController.js";
 import { CloudinaryFileUploadService } from "./services/cloudinaryFileUploadService.js";
+import { EmailService } from "./services/emailService.js";
 
 // Instantiate dependencies
 const userRepository = new UserRepository();
@@ -14,9 +15,10 @@ const hashUtils = new HashUtils();
 const jwtUtils = new JwtUtils();
 const companyRepository = new CompanyRepository();
 const fileUploadService = new CloudinaryFileUploadService();
+const emailService = new EmailService();
 
 // Inject into services
-const authService = new AuthService(userRepository, hashUtils, jwtUtils);
+const authService = new AuthService(userRepository, hashUtils, jwtUtils, emailService);
 const companyService = new CompanyService(companyRepository);
 
 // Inject into controllers

@@ -11,14 +11,16 @@ generator client {
 }
 
 model Users {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(SUPERADMIN)
-  companyId Int?
-  company   Company? @relation(fields: [companyId], references: [id])
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  name          String
+  prenom        String?
+  email         String   @unique
+  password      String
+  role          Role     @default(SUPERADMIN)
+  companyId     Int?
+  company       Company? @relation(fields: [companyId], references: [id])
+  isTempPassword Boolean @default(false)
+  createdAt     DateTime @default(now())
 }
 
 model Company {

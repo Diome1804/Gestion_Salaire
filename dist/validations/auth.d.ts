@@ -15,12 +15,15 @@ export declare const loginSchema: z.ZodObject<{
 }, z.core.$strip>;
 export declare const createUserSchema: z.ZodObject<{
     name: z.ZodString;
+    prenom: z.ZodOptional<z.ZodString>;
     email: z.ZodString;
-    password: z.ZodString;
     role: z.ZodEnum<{
         ADMIN: "ADMIN";
         CAISSIER: "CAISSIER";
     }>;
     companyId: z.ZodNumber;
+}, z.core.$strip>;
+export declare const changePasswordSchema: z.ZodObject<{
+    newPassword: z.ZodString;
 }, z.core.$strip>;
 //# sourceMappingURL=auth.d.ts.map

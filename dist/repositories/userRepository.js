@@ -6,5 +6,8 @@ export class UserRepository {
     async create(data) {
         return prisma.users.create({ data });
     }
+    async update(id, data) {
+        return prisma.users.update({ where: { id }, data });
+    }
 }
 //# sourceMappingURL=userRepository.js.map

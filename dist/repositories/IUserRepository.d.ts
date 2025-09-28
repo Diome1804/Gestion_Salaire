@@ -6,6 +6,16 @@ export interface IUserRepository {
         email: string;
         password: string;
         role?: Role;
+        companyId?: number;
+        isTempPassword?: boolean;
     }): Promise<User>;
+    update(id: number, data: Partial<{
+        name: string;
+        email: string;
+        password: string;
+        role: Role;
+        companyId: number;
+        isTempPassword: boolean;
+    }>): Promise<User>;
 }
 //# sourceMappingURL=IUserRepository.d.ts.map

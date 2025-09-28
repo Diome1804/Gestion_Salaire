@@ -23,9 +23,9 @@ export interface IAuthService {
     createUserBySuperAdmin(data: {
         name: string;
         email: string;
-        password: string;
         role: Role;
         companyId: number;
     }): Promise<User>;
+    changePassword(userId: number, newPassword: string): Promise<void>;
 }
 //# sourceMappingURL=IAuthService.d.ts.map

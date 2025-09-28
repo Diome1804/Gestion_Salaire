@@ -3,11 +3,13 @@ import type { IAuthService } from "./IAuthService.js";
 import type { IUserRepository } from "../repositories/IUserRepository.js";
 import type { IHashUtils } from "../utils/IHashUtils.js";
 import type { IJwtUtils } from "../utils/IJwtUtils.js";
+import type { IEmailService } from "./IEmailService.js";
 export declare class AuthService implements IAuthService {
     private userRepository;
     private hashUtils;
     private jwtUtils;
-    constructor(userRepository: IUserRepository, hashUtils: IHashUtils, jwtUtils: IJwtUtils);
+    private emailService;
+    constructor(userRepository: IUserRepository, hashUtils: IHashUtils, jwtUtils: IJwtUtils, emailService: IEmailService);
     registerUser(data: {
         name: string;
         email: string;
@@ -28,12 +30,13 @@ export declare class AuthService implements IAuthService {
         token: string;
         user: User;
     }>;
+    private generateTempPassword;
     createUserBySuperAdmin(data: {
         name: string;
         email: string;
-        password: string;
         role: Role;
         companyId: number;
     }): Promise<User>;
+    changePassword(userId: number, newPassword: string): Promise<void>;
 }
 //# sourceMappingURL=authService.d.ts.map

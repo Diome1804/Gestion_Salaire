@@ -3,13 +3,15 @@ import type { IAuthService } from "./IAuthService.js";
 import type { IUserRepository } from "../repositories/IUserRepository.js";
 import type { IHashUtils } from "../utils/IHashUtils.js";
 import type { IJwtUtils } from "../utils/IJwtUtils.js";
+import type { IEmailService } from "./IEmailService.js";
 import prisma from "../config/prisma.js";
 
 export class AuthService implements IAuthService {
   constructor(
     private userRepository: IUserRepository,
     private hashUtils: IHashUtils,
-    private jwtUtils: IJwtUtils
+    private jwtUtils: IJwtUtils,
+    private emailService: IEmailService
   ) {}
 
   async registerUser(data: { name: string; email: string; password: string }): Promise<User> {
@@ -44,13 +46,35 @@ export class AuthService implements IAuthService {
     return { token, user };
   }
 
-  async createUserBySuperAdmin(data: { name: string; email: string; password: string; role: Role; companyId: number }): Promise<User> {
+  private generateTempPassword(): string {
+    return Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+  }
+
+  async createUserBySuperAdmin(data: { name: string; email: string; role: Role; companyId: number }): Promise<User> {
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) throw new Error("Email déjà utilisé");
 
-    const hashed = await this.hashUtils.hashPassword(data.password);
-    const user = await this.userRepository.create({ ...data, password: hashed });
+    const tempPassword = this.generateTempPassword();
+    const hashed = await this.hashUtils.hashPassword(tempPassword);
+    const user = await this.userRepository.create({ ...data, password: hashed, isTempPassword: true });
+
+    // Send email
+    const subject = "Vos informations de connexion";
+    const html = `
+      <h1>Bienvenue dans Gestion Salaire</h1>
+      <p>Votre compte a été créé avec succès.</p>
+      <p><strong>Email:</strong> ${data.email}</p>
+      <p><strong>Mot de passe temporaire:</strong> ${tempPassword}</p>
+      <p>Veuillez vous connecter et changer votre mot de passe immédiatement.</p>
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login">Se connecter</a>
+    `;
+    await this.emailService.sendEmail(data.email, subject, html);
 
     return user;
+  }
+
+  async changePassword(userId: number, newPassword: string): Promise<void> {
+    const hashed = await this.hashUtils.hashPassword(newPassword);
+    await this.userRepository.update(userId, { password: hashed, isTempPassword: false });
   }
 }

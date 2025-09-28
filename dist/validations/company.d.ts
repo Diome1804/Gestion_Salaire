@@ -1,5 +1,6 @@
 import { z } from "zod";
 export declare const companySchema: z.ZodObject<{
+    name: z.ZodString;
     logo: z.ZodOptional<z.ZodString>;
     address: z.ZodString;
     currency: z.ZodString;
@@ -10,6 +11,7 @@ export declare const companySchema: z.ZodObject<{
     }>;
 }, z.core.$strip>;
 export declare const updateCompanySchema: z.ZodObject<{
+    name: z.ZodOptional<z.ZodString>;
     logo: z.ZodOptional<z.ZodString>;
     address: z.ZodOptional<z.ZodString>;
     currency: z.ZodOptional<z.ZodString>;

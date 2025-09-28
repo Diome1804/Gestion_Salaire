@@ -5,6 +5,7 @@ export declare class CompanyService implements ICompanyService {
     private companyRepository;
     constructor(companyRepository: ICompanyRepository);
     createCompany(data: {
+        name: string;
         logo?: string | undefined;
         address: string;
         currency: string;
@@ -12,6 +13,7 @@ export declare class CompanyService implements ICompanyService {
     }): Promise<Company>;
     getCompanyById(id: number): Promise<Company | null>;
     updateCompany(id: number, data: Partial<{
+        name?: string | undefined;
         logo?: string | undefined;
         address?: string | undefined;
         currency?: string | undefined;

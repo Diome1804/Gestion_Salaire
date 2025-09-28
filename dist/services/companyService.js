@@ -16,6 +16,8 @@ export class CompanyService {
     }
     async updateCompany(id, data) {
         const transformedData = {};
+        if (data.name !== undefined)
+            transformedData.name = data.name;
         if (data.logo !== undefined)
             transformedData.logo = data.logo ?? null;
         if (data.address !== undefined)

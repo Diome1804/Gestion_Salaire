@@ -1,6 +1,7 @@
 import type { Company as CompanyModel, PeriodType } from "@prisma/client";
 export interface ICompanyService {
     createCompany(data: {
+        name: string;
         logo?: string | undefined;
         address: string;
         currency: string;
@@ -8,6 +9,7 @@ export interface ICompanyService {
     }): Promise<CompanyModel>;
     getCompanyById(id: number): Promise<CompanyModel | null>;
     updateCompany(id: number, data: Partial<{
+        name?: string | undefined;
         logo?: string | undefined;
         address?: string | undefined;
         currency?: string | undefined;

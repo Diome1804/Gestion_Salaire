@@ -4,7 +4,7 @@ import type { Company, PeriodType } from "@prisma/client";
 
 export class CompanyRepository implements ICompanyRepository {
   
-  async create(data: { logo?: string | null; address: string; currency: string; periodType: PeriodType }): Promise<Company> {
+  async create(data: { name: string; logo?: string | null; address: string; currency: string; periodType: PeriodType }): Promise<Company> {
     return prisma.company.create({ data });
   }
 
@@ -12,7 +12,7 @@ export class CompanyRepository implements ICompanyRepository {
     return prisma.company.findUnique({ where: { id } });
   }
 
-  async update(id: number, data: { logo?: string | null; address?: string; currency?: string; periodType?: PeriodType }): Promise<Company> {
+  async update(id: number, data: { name?: string; logo?: string | null; address?: string; currency?: string; periodType?: PeriodType }): Promise<Company> {
     return prisma.company.update({ where: { id }, data });
   }
 

@@ -23,6 +23,7 @@ model Users {
 
 model Company {
   id         Int      @id @default(autoincrement())
+  name       String
   logo       String?
   address    String
   currency   String

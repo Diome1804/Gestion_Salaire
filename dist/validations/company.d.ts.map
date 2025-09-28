@@ -1,1 +1,1 @@
-{"version":3,"file":"company.d.ts","sourceRoot":"","sources":["../../src/validations/company.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,eAAO,MAAM,aAAa;;;;;;;;;iBAKxB,CAAC;AAEH,eAAO,MAAM,mBAAmB;;;;;;;;;iBAK9B,CAAC"}
+{"version":3,"file":"company.d.ts","sourceRoot":"","sources":["../../src/validations/company.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,eAAO,MAAM,aAAa;;;;;;;;;;iBAMxB,CAAC;AAEH,eAAO,MAAM,mBAAmB;;;;;;;;;;iBAM9B,CAAC"}

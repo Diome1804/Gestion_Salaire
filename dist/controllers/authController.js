@@ -44,8 +44,11 @@ export class AuthController {
         try {
             let data = createUserSchema.parse(req.body);
             const caller = req.user;
+            console.log('CreateUser - Caller:', { role: caller.role, companyId: caller.companyId });
+            console.log('CreateUser - Request data:', data);
             if (caller.role === "ADMIN") {
                 data.companyId = caller.companyId;
+                console.log('CreateUser - Set companyId to caller companyId:', data.companyId);
             }
             else if (caller.role === "SUPERADMIN") {
                 // For SUPERADMIN, require companyId for ADMIN and CAISSIER

@@ -48,8 +48,11 @@ export class AuthController implements IAuthController {
     try {
       let data = createUserSchema.parse(req.body);
       const caller = (req as any).user;
+      console.log('CreateUser - Caller:', { role: caller.role, companyId: caller.companyId });
+      console.log('CreateUser - Request data:', data);
       if (caller.role === "ADMIN") {
         data.companyId = caller.companyId;
+        console.log('CreateUser - Set companyId to caller companyId:', data.companyId);
       } else if (caller.role === "SUPERADMIN") {
         // For SUPERADMIN, require companyId for ADMIN and CAISSIER
         if ((data.role === "ADMIN" || data.role === "CAISSIER") && !data.companyId) {

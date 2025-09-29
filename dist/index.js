@@ -1,14 +1,14 @@
 import app from "./App.js";
 import { execSync } from 'child_process';
 const PORT = process.env.PORT || 4000;
-// Run database migrations
+// Run database schema sync
 try {
-    console.log('Running database migrations...');
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-    console.log('Migrations completed successfully.');
+    console.log('Syncing database schema...');
+    execSync('npx prisma db push', { stdio: 'inherit' });
+    console.log('Database schema synced successfully.');
 }
 catch (error) {
-    console.error('Migration failed:', error);
+    console.error('Schema sync failed:', error);
     process.exit(1);
 }
 app.listen(PORT, () => {

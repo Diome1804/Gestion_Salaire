@@ -1,38 +1,21 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 export class EmailService {
-    transporter;
     constructor() {
-        console.log('SMTP Config Debug:', {
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            user: process.env.SMTP_USER ? 'SET' : 'NOT SET',
-            pass: process.env.SMTP_PASS ? 'SET' : 'NOT SET',
+        console.log('SendGrid API Config Debug:', {
+            apiKey: process.env.SMTP_PASS ? 'SET' : 'NOT SET',
             from: process.env.SMTP_FROM
         });
-        this.transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
-            },
-            // Add timeout and debug
-            connectionTimeout: 10000, // 10 seconds
-            greetingTimeout: 10000,
-            socketTimeout: 10000,
-            debug: true,
-            logger: true,
-        });
+        // Use SMTP_PASS as SendGrid API key
+        sgMail.setApiKey(process.env.SMTP_PASS || '');
     }
     async sendEmail(to, subject, html) {
-        const mailOptions = {
-            from: process.env.SMTP_FROM || 'noreply@gestion-salaire.com',
+        const msg = {
             to,
+            from: process.env.SMTP_FROM || 'noreply@gestion-salaire.com',
             subject,
             html,
         };
-        await this.transporter.sendMail(mailOptions);
+        await sgMail.send(msg);
     }
 }
 //# sourceMappingURL=emailService.js.map

@@ -31,7 +31,22 @@ model Company {
   currency   String
   periodType PeriodType
   users      Users[]
+  employees  Employee[]
   createdAt  DateTime @default(now())
+}
+
+model Employee {
+  id            Int          @id @default(autoincrement())
+  userId        Int          @unique
+  fullName      String
+  position      String
+  contractType  ContractType
+  rateOrSalary  Float
+  bankDetails   String?
+  isActive      Boolean      @default(true)
+  companyId     Int
+  company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
 }
 
 enum Role {
@@ -44,4 +59,10 @@ enum PeriodType {
   MONTHLY
   WEEKLY
   DAILY
+}
+
+enum ContractType {
+  DAILY
+  FIXED
+  FREELANCE
 }

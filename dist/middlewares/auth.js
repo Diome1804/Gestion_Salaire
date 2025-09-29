@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
-export const authenticate = (req, res, next) => {
+import prisma from "../config/prisma.js";
+export const authenticate = async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
         res.status(401).json({ error: "Token manquant" });
@@ -7,7 +8,17 @@ export const authenticate = (req, res, next) => {
     }
     try {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = payload;
+        // Fetch full user to get companyId
+        const user = await prisma.users.findUnique({ where: { id: payload.id } });
+        if (!user) {
+            res.status(401).json({ error: "Utilisateur non trouvé" });
+            return;
+        }
+        req.user = {
+            id: user.id,
+            role: user.role,
+            companyId: user.companyId
+        };
         next();
     }
     catch (error) {

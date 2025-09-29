@@ -18,7 +18,7 @@ model Users {
   password      String
   role          Role     @default(SUPERADMIN)
   companyId     Int?
-  company       Company? @relation(fields: [companyId], references: [id])
+  company       Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
   isTempPassword Boolean @default(false)
   createdAt     DateTime @default(now())
 }

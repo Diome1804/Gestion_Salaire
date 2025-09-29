@@ -66,7 +66,7 @@ export class AuthService implements IAuthService {
       <p><strong>Email:</strong> ${data.email}</p>
       <p><strong>Mot de passe temporaire:</strong> ${tempPassword}</p>
       <p>Veuillez vous connecter et changer votre mot de passe immédiatement.</p>
-      <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login">Se connecter</a>
+      <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Se connecter</a>
     `;
     // Don't await to prevent timeout blocking user creation
     this.emailService.sendEmail(data.email, subject, html).catch(error => {

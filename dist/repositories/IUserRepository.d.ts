@@ -6,7 +6,7 @@ export interface IUserRepository {
         email: string;
         password: string;
         role?: Role;
-        companyId?: number;
+        companyId?: number | null;
         isTempPassword?: boolean;
     }): Promise<User>;
     update(id: number, data: Partial<{
@@ -14,7 +14,7 @@ export interface IUserRepository {
         email: string;
         password: string;
         role: Role;
-        companyId: number;
+        companyId: number | null;
         isTempPassword: boolean;
     }>): Promise<User>;
 }

@@ -50,8 +50,13 @@ export class AuthController implements IAuthController {
       const caller = (req as any).user;
       if (caller.role === "ADMIN") {
         data.companyId = caller.companyId;
+      } else if (caller.role === "SUPERADMIN") {
+        // For SUPERADMIN, require companyId for ADMIN and CAISSIER
+        if ((data.role === "ADMIN" || data.role === "CAISSIER") && !data.companyId) {
+          throw new Error("companyId est requis pour les rôles ADMIN et CAISSIER");
+        }
       }
-      const user = await this.authService.createUserBySuperAdmin(data);
+      const user = await this.authService.createUserBySuperAdmin(data as any);
       res.json({ message: "Utilisateur créé et email envoyé", user });
     } catch (error: any) {
       res.status(400).json({ error: error.message });

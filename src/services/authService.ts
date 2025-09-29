@@ -50,7 +50,7 @@ export class AuthService implements IAuthService {
     return Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
   }
 
-  async createUserBySuperAdmin(data: { name: string; email: string; role: Role; companyId: number }): Promise<User> {
+  async createUserBySuperAdmin(data: { name: string; email: string; role: Role; companyId: number | null }): Promise<User> {
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) throw new Error("Email déjà utilisé");
 

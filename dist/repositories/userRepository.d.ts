@@ -7,7 +7,7 @@ export declare class UserRepository implements IUserRepository {
         email: string;
         password: string;
         role?: Role;
-        companyId?: number;
+        companyId?: number | null;
         isTempPassword?: boolean;
     }): Promise<User>;
     update(id: number, data: Partial<{
@@ -15,7 +15,7 @@ export declare class UserRepository implements IUserRepository {
         email: string;
         password: string;
         role: Role;
-        companyId: number;
+        companyId: number | null;
         isTempPassword: boolean;
     }>): Promise<User>;
 }

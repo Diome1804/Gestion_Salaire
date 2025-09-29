@@ -35,7 +35,7 @@ export declare class AuthService implements IAuthService {
         name: string;
         email: string;
         role: Role;
-        companyId: number;
+        companyId: number | null;
     }): Promise<User>;
     changePassword(userId: number, newPassword: string): Promise<void>;
 }

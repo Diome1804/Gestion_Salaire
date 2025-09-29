@@ -21,7 +21,7 @@ export declare const createUserSchema: z.ZodObject<{
         ADMIN: "ADMIN";
         CAISSIER: "CAISSIER";
     }>;
-    companyId: z.ZodNumber;
+    companyId: z.ZodOptional<z.ZodNumber>;
 }, z.core.$strip>;
 export declare const changePasswordSchema: z.ZodObject<{
     newPassword: z.ZodString;

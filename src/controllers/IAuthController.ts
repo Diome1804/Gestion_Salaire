@@ -5,6 +5,7 @@ export interface IAuthController {
   login(req: Request, res: Response): Promise<void>;
   createSuperAdmin(req: Request, res: Response): Promise<void>;
   createUser(req: Request, res: Response): Promise<void>;
+  getAllUsers(req: Request, res: Response): Promise<void>;
 }
 
 

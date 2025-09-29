@@ -17,5 +17,6 @@ export interface IUserRepository {
         companyId: number | null;
         isTempPassword: boolean;
     }>): Promise<User>;
+    findAll(): Promise<User[]>;
 }
 //# sourceMappingURL=IUserRepository.d.ts.map

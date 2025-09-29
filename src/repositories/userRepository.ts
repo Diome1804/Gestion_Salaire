@@ -15,4 +15,12 @@ export class UserRepository implements IUserRepository {
   async update(id: number, data: Partial<{ name: string; email: string; password: string; role: Role; companyId: number | null; isTempPassword: boolean }>): Promise<User> {
     return prisma.users.update({ where: { id }, data });
   }
+
+  async findAll(): Promise<User[]> {
+    return prisma.users.findMany({
+      include: {
+        company: true
+      }
+    });
+  }
 }

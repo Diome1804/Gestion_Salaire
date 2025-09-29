@@ -6,4 +6,5 @@ export interface IAuthService {
   createSuperAdmin(data: { name: string; email: string; password: string }): Promise<{ token: string; user: User }>;
   createUserBySuperAdmin(data: { name: string; email: string; role: Role; companyId: number }): Promise<User>;
   changePassword(userId: number, newPassword: string): Promise<void>;
+  getAllUsers(): Promise<User[]>;
 }

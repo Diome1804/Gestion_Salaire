@@ -67,5 +67,8 @@ export class AuthService {
         const hashed = await this.hashUtils.hashPassword(newPassword);
         await this.userRepository.update(userId, { password: hashed, isTempPassword: false });
     }
+    async getAllUsers() {
+        return await this.userRepository.findAll();
+    }
 }
 //# sourceMappingURL=authService.js.map

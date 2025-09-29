@@ -9,5 +9,12 @@ export class UserRepository {
     async update(id, data) {
         return prisma.users.update({ where: { id }, data });
     }
+    async findAll() {
+        return prisma.users.findMany({
+            include: {
+                company: true
+            }
+        });
+    }
 }
 //# sourceMappingURL=userRepository.js.map

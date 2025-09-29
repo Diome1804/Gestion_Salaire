@@ -80,4 +80,8 @@ export class AuthService implements IAuthService {
     const hashed = await this.hashUtils.hashPassword(newPassword);
     await this.userRepository.update(userId, { password: hashed, isTempPassword: false });
   }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.userRepository.findAll();
+  }
 }

@@ -18,5 +18,6 @@ export interface IUserRepository {
         isTempPassword: boolean;
     }>): Promise<User>;
     findAll(): Promise<User[]>;
+    delete(id: number): Promise<void>;
 }
 //# sourceMappingURL=IUserRepository.d.ts.map

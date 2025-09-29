@@ -83,5 +83,24 @@ export class AuthController {
             res.status(500).json({ error: error.message });
         }
     }
+    async deleteUser(req, res) {
+        try {
+            const id = req.params.id;
+            if (!id) {
+                res.status(400).json({ error: "ID utilisateur manquant" });
+                return;
+            }
+            const userId = parseInt(id);
+            if (isNaN(userId)) {
+                res.status(400).json({ error: "ID utilisateur invalide" });
+                return;
+            }
+            await this.authService.deleteUser(userId);
+            res.json({ message: "Utilisateur supprimé avec succès" });
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 //# sourceMappingURL=authController.js.map

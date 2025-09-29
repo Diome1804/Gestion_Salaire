@@ -10,5 +10,6 @@ export declare class AuthController implements IAuthController {
     createUser(req: Request, res: Response): Promise<void>;
     changePassword(req: Request, res: Response): Promise<void>;
     getAllUsers(req: Request, res: Response): Promise<void>;
+    deleteUser(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=authController.d.ts.map

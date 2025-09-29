@@ -39,5 +39,6 @@ export declare class AuthService implements IAuthService {
     }): Promise<User>;
     changePassword(userId: number, newPassword: string): Promise<void>;
     getAllUsers(): Promise<User[]>;
+    deleteUser(userId: number): Promise<void>;
 }
 //# sourceMappingURL=authService.d.ts.map

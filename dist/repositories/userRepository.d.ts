@@ -19,5 +19,6 @@ export declare class UserRepository implements IUserRepository {
         isTempPassword: boolean;
     }>): Promise<User>;
     findAll(): Promise<User[]>;
+    delete(id: number): Promise<void>;
 }
 //# sourceMappingURL=userRepository.d.ts.map

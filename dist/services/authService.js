@@ -70,5 +70,8 @@ export class AuthService {
     async getAllUsers() {
         return await this.userRepository.findAll();
     }
+    async deleteUser(userId) {
+        await this.userRepository.delete(userId);
+    }
 }
 //# sourceMappingURL=authService.js.map

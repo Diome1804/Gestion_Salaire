@@ -28,5 +28,6 @@ export interface IAuthService {
     }): Promise<User>;
     changePassword(userId: number, newPassword: string): Promise<void>;
     getAllUsers(): Promise<User[]>;
+    deleteUser(userId: number): Promise<void>;
 }
 //# sourceMappingURL=IAuthService.d.ts.map

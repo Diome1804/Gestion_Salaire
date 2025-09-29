@@ -84,4 +84,8 @@ export class AuthService implements IAuthService {
   async getAllUsers(): Promise<User[]> {
     return await this.userRepository.findAll();
   }
+
+  async deleteUser(userId: number): Promise<void> {
+    await this.userRepository.delete(userId);
+  }
 }

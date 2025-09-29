@@ -5,4 +5,5 @@ export interface IUserRepository {
   create(data: { name: string; email: string; password: string; role?: Role; companyId?: number | null; isTempPassword?: boolean }): Promise<User>;
   update(id: number, data: Partial<{ name: string; email: string; password: string; role: Role; companyId: number | null; isTempPassword: boolean }>): Promise<User>;
   findAll(): Promise<User[]>;
+  delete(id: number): Promise<void>;
 }

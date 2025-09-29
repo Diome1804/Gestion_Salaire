@@ -21,3 +21,13 @@
 - [ ] Add environment variables for SMTP (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM, FRONTEND_URL)
 - [ ] Update frontend to handle requirePasswordChange flag and redirect to change password
 - [ ] Add validation to ensure SUPERADMIN can create ADMIN, ADMIN can create CAISSIER, but not vice versa
+
+## New Task: Add Delete User Endpoint for Superadmin
+- [x] Add delete method to IUserRepository interface
+- [x] Implement delete in UserRepository
+- [x] Add deleteUser to IAuthService interface
+- [x] Implement deleteUser in AuthService
+- [x] Add deleteUser to IAuthController interface
+- [x] Implement deleteUser in AuthController
+- [x] Add DELETE /auth/users/:id route with SUPERADMIN authorization
+- [x] Regenerate Prisma client

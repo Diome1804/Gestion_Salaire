@@ -6,6 +6,7 @@ export interface IAuthController {
   createSuperAdmin(req: Request, res: Response): Promise<void>;
   createUser(req: Request, res: Response): Promise<void>;
   getAllUsers(req: Request, res: Response): Promise<void>;
+  deleteUser(req: Request, res: Response): Promise<void>;
 }
 
 

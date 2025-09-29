@@ -16,5 +16,8 @@ export class UserRepository {
             }
         });
     }
+    async delete(id) {
+        await prisma.users.delete({ where: { id } });
+    }
 }
 //# sourceMappingURL=userRepository.js.map

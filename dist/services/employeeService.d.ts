@@ -5,7 +5,6 @@ export declare class EmployeeService implements IEmployeeService {
     private employeeRepository;
     constructor(employeeRepository: IEmployeeRepository);
     createEmployee(data: {
-        userId: number;
         fullName: string;
         position: string;
         contractType: ContractType;

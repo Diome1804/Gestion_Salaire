@@ -1,6 +1,5 @@
 import { z } from "zod";
 export const createEmployeeSchema = z.object({
-    userId: z.number().int().positive(),
     fullName: z.string().min(1),
     position: z.string().min(1),
     contractType: z.enum(["DAILY", "FIXED", "FREELANCE"]),

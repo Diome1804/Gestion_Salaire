@@ -1,6 +1,5 @@
 import { z } from "zod";
 export declare const createEmployeeSchema: z.ZodObject<{
-    userId: z.ZodNumber;
     fullName: z.ZodString;
     position: z.ZodString;
     contractType: z.ZodEnum<{

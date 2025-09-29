@@ -7,7 +7,6 @@ export class EmployeeService implements IEmployeeService {
   constructor(private employeeRepository: IEmployeeRepository) {}
 
   async createEmployee(data: {
-    userId: number;
     fullName: string;
     position: string;
     contractType: ContractType;
@@ -15,15 +14,6 @@ export class EmployeeService implements IEmployeeService {
     bankDetails?: string;
     companyId: number;
   }): Promise<EmployeeModel> {
-    // Check if user exists and belongs to the company
-    const user = await prisma.users.findUnique({ where: { id: data.userId } });
-    if (!user) throw new Error("Utilisateur non trouvé");
-    if (user.companyId !== data.companyId) throw new Error("L'utilisateur n'appartient pas à cette entreprise");
-
-    // Check if employee already exists for this user
-    const existing = await this.employeeRepository.findByUserId(data.userId);
-    if (existing) throw new Error("Employé déjà créé pour cet utilisateur");
-
     return this.employeeRepository.create(data);
   }
 

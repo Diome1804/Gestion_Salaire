@@ -2,7 +2,6 @@ import type { Employee as EmployeeModel, ContractType } from "@prisma/client";
 
 export interface IEmployeeService {
   createEmployee(data: {
-    userId: number;
     fullName: string;
     position: string;
     contractType: ContractType;

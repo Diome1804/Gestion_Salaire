@@ -20,6 +20,8 @@ model Users {
   companyId     Int?
   company       Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
   isTempPassword Boolean @default(false)
+  createdPayRuns PayRun[]
+  createdPayments Payment[]
   createdAt     DateTime @default(now())
 }
 
@@ -32,12 +34,12 @@ model Company {
   periodType PeriodType
   users      Users[]
   employees  Employee[]
+  payRuns    PayRun[]
   createdAt  DateTime @default(now())
 }
 
 model Employee {
   id            Int          @id @default(autoincrement())
-  userId        Int          @unique
   fullName      String
   position      String
   contractType  ContractType
@@ -46,7 +48,73 @@ model Employee {
   isActive      Boolean      @default(true)
   companyId     Int
   company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  payslips      Payslip[]
+  attendances   Attendance[]
   createdAt     DateTime     @default(now())
+}
+
+model PayRun {
+  id            Int          @id @default(autoincrement())
+  companyId     Int
+  company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name          String
+  periodType    PeriodType
+  startDate     DateTime
+  endDate       DateTime
+  status        PayRunStatus @default(DRAFT)
+  totalGross    Float        @default(0)
+  totalDeductions Float      @default(0)
+  totalNet      Float        @default(0)
+  createdBy     Int
+  createdByUser Users        @relation(fields: [createdBy], references: [id])
+  payslips      Payslip[]
+  attendances   Attendance[]
+  createdAt     DateTime     @default(now())
+  approvedAt    DateTime?
+  closedAt      DateTime?
+}
+
+model Payslip {
+  id            Int            @id @default(autoincrement())
+  payRunId      Int
+  payRun        PayRun         @relation(fields: [payRunId], references: [id], onDelete: Cascade)
+  employeeId    Int
+  employee      Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  grossSalary   Float
+  deductions    Json           @default("[]")
+  totalDeductions Float        @default(0)
+  netSalary     Float
+  paymentStatus PayslipStatus  @default(PENDING)
+  notes         String?
+  payments      Payment[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Payment {
+  id            Int            @id @default(autoincrement())
+  payslipId     Int
+  payslip       Payslip        @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  amount        Float
+  paymentMethod PaymentMethod
+  reference     String?
+  notes         String?
+  paidAt        DateTime       @default(now())
+  createdBy     Int
+  createdByUser Users          @relation(fields: [createdBy], references: [id])
+}
+
+model Attendance {
+  id           Int       @id @default(autoincrement())
+  employeeId   Int
+  employee     Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  payRunId     Int?
+  payRun       PayRun?   @relation(fields: [payRunId], references: [id], onDelete: SetNull)
+  date         DateTime
+  hoursWorked  Float     @default(0)
+  isPresent    Boolean   @default(false)
+  notes        String?
+  createdAt    DateTime  @default(now())
 }
 
 enum Role {
@@ -65,4 +133,24 @@ enum ContractType {
   DAILY
   FIXED
   FREELANCE
+}
+
+enum PayRunStatus {
+  DRAFT
+  APPROVED
+  CLOSED
+}
+
+enum PayslipStatus {
+  PENDING
+  PARTIAL
+  PAID
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  ORANGE_MONEY
+  WAVE
+  OTHER
 }

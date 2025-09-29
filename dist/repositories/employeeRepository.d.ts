@@ -2,9 +2,7 @@ import type { Employee as EmployeeModel, ContractType } from "@prisma/client";
 import type { IEmployeeRepository } from "./IEmployeeRepository.js";
 export declare class EmployeeRepository implements IEmployeeRepository {
     findById(id: number): Promise<EmployeeModel | null>;
-    findByUserId(userId: number): Promise<EmployeeModel | null>;
     create(data: {
-        userId: number;
         fullName: string;
         position: string;
         contractType: ContractType;

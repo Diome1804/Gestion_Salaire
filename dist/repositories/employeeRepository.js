@@ -3,9 +3,6 @@ export class EmployeeRepository {
     async findById(id) {
         return prisma.employee.findUnique({ where: { id } });
     }
-    async findByUserId(userId) {
-        return prisma.employee.findUnique({ where: { userId } });
-    }
     async create(data) {
         return prisma.employee.create({ data });
     }

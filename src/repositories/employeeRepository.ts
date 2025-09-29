@@ -8,12 +8,7 @@ export class EmployeeRepository implements IEmployeeRepository {
     return prisma.employee.findUnique({ where: { id } });
   }
 
-  async findByUserId(userId: number): Promise<EmployeeModel | null> {
-    return prisma.employee.findUnique({ where: { userId } });
-  }
-
   async create(data: {
-    userId: number;
     fullName: string;
     position: string;
     contractType: ContractType;

@@ -2,14 +2,27 @@ import nodemailer from 'nodemailer';
 export class EmailService {
     transporter;
     constructor() {
+        console.log('SMTP Config Debug:', {
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            user: process.env.SMTP_USER ? 'SET' : 'NOT SET',
+            pass: process.env.SMTP_PASS ? 'SET' : 'NOT SET',
+            from: process.env.SMTP_FROM
+        });
         this.transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: parseInt(process.env.SMTP_PORT || '587'),
-            secure: false, // true for 465, false for other ports
+            secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
+            // Add timeout and debug
+            connectionTimeout: 10000, // 10 seconds
+            greetingTimeout: 10000,
+            socketTimeout: 10000,
+            debug: true,
+            logger: true,
         });
     }
     async sendEmail(to, subject, html) {

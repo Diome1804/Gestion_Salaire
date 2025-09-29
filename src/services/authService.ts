@@ -58,7 +58,7 @@ export class AuthService implements IAuthService {
     const hashed = await this.hashUtils.hashPassword(tempPassword);
     const user = await this.userRepository.create({ ...data, password: hashed, isTempPassword: true });
 
-    // Send email
+    // Send email (async to not block user creation)
     const subject = "Vos informations de connexion";
     const html = `
       <h1>Bienvenue dans Gestion Salaire</h1>
@@ -68,7 +68,10 @@ export class AuthService implements IAuthService {
       <p>Veuillez vous connecter et changer votre mot de passe immédiatement.</p>
       <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login">Se connecter</a>
     `;
-    await this.emailService.sendEmail(data.email, subject, html);
+    // Don't await to prevent timeout blocking user creation
+    this.emailService.sendEmail(data.email, subject, html).catch(error => {
+      console.error('Failed to send email:', error);
+    });
 
     return user;
   }

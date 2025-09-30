@@ -5,6 +5,7 @@ import authRoutes from "./routes/authRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 import payRunRoutes from "./routes/payRunRoutes.js";
+import payslipRoutes from "./routes/payslipRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use("/auth", authRoutes);
 app.use("/company", companyRoutes);
 app.use("/employees", employeeRoutes);
 app.use("/payruns", payRunRoutes);
+app.use("/payslips", payslipRoutes);
 
 app.get("/", (_, res) => {
   res.json({ message: "API Salary Backend OK" });

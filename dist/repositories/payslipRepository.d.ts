@@ -12,5 +12,6 @@ export declare class PayslipRepository implements IPayslipRepository {
         paymentStatus: PayslipStatus;
     }>): Promise<PayslipModel>;
     delete(id: number): Promise<void>;
+    updatePaymentStatus(id: number, status: PayslipStatus): Promise<void>;
 }
 //# sourceMappingURL=payslipRepository.d.ts.map

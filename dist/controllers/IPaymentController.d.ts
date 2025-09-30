@@ -1,0 +1,13 @@
+import type { Request, Response } from "express";
+export interface IPaymentController {
+    getPaymentById(req: Request, res: Response): Promise<void>;
+    getPaymentsByPayslip(req: Request, res: Response): Promise<void>;
+    getPaymentsByCompany(req: Request, res: Response): Promise<void>;
+    createPayment(req: Request, res: Response): Promise<void>;
+    updatePayment(req: Request, res: Response): Promise<void>;
+    deletePayment(req: Request, res: Response): Promise<void>;
+    generatePaymentReceipt(req: Request, res: Response): Promise<void>;
+    generatePaymentList(req: Request, res: Response): Promise<void>;
+    generatePayrollRegister(req: Request, res: Response): Promise<void>;
+}
+//# sourceMappingURL=IPaymentController.d.ts.map

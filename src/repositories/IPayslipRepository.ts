@@ -12,5 +12,6 @@ export interface IPayslipRepository {
     paymentStatus: PayslipStatus;
     notes?: string;
   }>): Promise<PayslipModel>;
+  updatePaymentStatus(id: number, status: PayslipStatus): Promise<void>;
   delete(id: number): Promise<void>;
 }

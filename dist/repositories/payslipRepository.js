@@ -71,5 +71,14 @@ export class PayslipRepository {
     async delete(id) {
         await prisma.payslip.delete({ where: { id } });
     }
+    async updatePaymentStatus(id, status) {
+        await prisma.payslip.update({
+            where: { id },
+            data: {
+                paymentStatus: status,
+                updatedAt: new Date()
+            }
+        });
+    }
 }
 //# sourceMappingURL=payslipRepository.js.map

@@ -85,4 +85,14 @@ export class PayslipRepository implements IPayslipRepository {
   async delete(id: number): Promise<void> {
     await prisma.payslip.delete({ where: { id } });
   }
+
+  async updatePaymentStatus(id: number, status: PayslipStatus): Promise<void> {
+    await prisma.payslip.update({
+      where: { id },
+      data: {
+        paymentStatus: status,
+        updatedAt: new Date()
+      }
+    });
+  }
 }

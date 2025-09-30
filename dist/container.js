@@ -17,6 +17,9 @@ import { PayRunController } from "./controllers/payRunController.js";
 import { PayslipRepository } from "./repositories/payslipRepository.js";
 import { PayslipService } from "./services/payslipService.js";
 import { PayslipController } from "./controllers/payslipController.js";
+import { PaymentRepository } from "./repositories/paymentRepository.js";
+import { PaymentService } from "./services/paymentService.js";
+import { PaymentController } from "./controllers/paymentController.js";
 import { PDFService } from "./services/pdfService.js";
 // Instantiate dependencies
 const userRepository = new UserRepository();
@@ -26,6 +29,7 @@ const companyRepository = new CompanyRepository();
 const employeeRepository = new EmployeeRepository();
 const payRunRepository = new PayRunRepository();
 const payslipRepository = new PayslipRepository();
+const paymentRepository = new PaymentRepository();
 const pdfService = new PDFService();
 const fileUploadService = new CloudinaryFileUploadService();
 const emailService = new EmailService();
@@ -35,11 +39,13 @@ const companyService = new CompanyService(companyRepository);
 const employeeService = new EmployeeService(employeeRepository);
 const payRunService = new PayRunService(payRunRepository, employeeRepository);
 const payslipService = new PayslipService(payslipRepository, payRunService);
+const paymentService = new PaymentService(paymentRepository, payslipRepository, pdfService);
 // Inject into controllers
 const authController = new AuthController(authService);
 const companyController = new CompanyController(companyService, fileUploadService);
 const employeeController = new EmployeeController(employeeService);
 const payRunController = new PayRunController(payRunService);
 const payslipController = new PayslipController(payslipService, pdfService);
-export { authController, companyController, employeeController, payRunController, payslipController };
+const paymentController = new PaymentController(paymentService);
+export { authController, companyController, employeeController, payRunController, payslipController, paymentController };
 //# sourceMappingURL=container.js.map

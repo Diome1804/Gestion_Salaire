@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 export interface PayslipPDFData {
   // Infos entreprise
@@ -31,7 +31,7 @@ export interface PayslipPDFData {
 }
 
 export class PDFService {
-  private async generatePayslipHTML(data: PayslipPDFData): Promise<string> {
+  async generatePayslipHTML(data: PayslipPDFData): Promise<string> {
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat('fr-FR', {
         style: 'currency',
@@ -184,88 +184,246 @@ export class PDFService {
   }
 
   async generatePayslipPDF(data: PayslipPDFData): Promise<Buffer> {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage();
+    const { width, height } = page.getSize();
+
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    const fontSize = 12;
+    let yPosition = height - 50;
+
+    // Fonction utilitaire pour formater la monnaie
+    const formatCurrency = (amount: number) => {
+      return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: data.company.currency,
+      }).format(amount);
+    };
+
+    // Fonction utilitaire pour dessiner du texte
+    const drawText = (text: string, x: number, y: number, options: any = {}) => {
+      page.drawText(text, { x, y, size: fontSize, font, ...options });
+    };
+
+    const drawBoldText = (text: string, x: number, y: number, options: any = {}) => {
+      page.drawText(text, { x, y, size: fontSize, font: boldFont, ...options });
+    };
+
+    // En-tête
+    drawBoldText('BULLETIN DE PAIE', width / 2 - 80, yPosition, { size: 18 });
+    yPosition -= 30;
+    drawBoldText(data.payRun.name, width / 2 - 60, yPosition, { size: 14 });
+    yPosition -= 20;
+    drawText(`Période: ${new Intl.DateTimeFormat('fr-FR').format(data.payRun.startDate)} - ${new Intl.DateTimeFormat('fr-FR').format(data.payRun.endDate)}`, width / 2 - 100, yPosition);
+    yPosition -= 40;
+
+    // Informations entreprise
+    drawBoldText('Informations Entreprise', 50, yPosition);
+    yPosition -= 20;
+    drawText(`Nom: ${data.company.name}`, 50, yPosition);
+    yPosition -= 15;
+    drawText(`Adresse: ${data.company.address}`, 50, yPosition);
+    yPosition -= 30;
+
+    // Informations employé
+    drawBoldText('Informations Employé', 50, yPosition);
+    yPosition -= 20;
+    drawText(`Nom: ${data.employee.fullName}`, 50, yPosition);
+    yPosition -= 15;
+    drawText(`Poste: ${data.employee.position}`, 50, yPosition);
+    yPosition -= 15;
+    drawText(`Type de contrat: ${data.employee.contractType}`, 50, yPosition);
+    yPosition -= 40;
+
+    // Détails salariaux
+    drawBoldText('Détail de la Paie', 50, yPosition);
+    yPosition -= 30;
+
+    // Tableau des salaires
+    const tableX = 50;
+    const col1Width = 200;
+    const col2Width = 150;
+
+    // En-têtes du tableau
+    drawBoldText('Description', tableX, yPosition);
+    drawBoldText('Montant', tableX + col1Width, yPosition);
+    yPosition -= 20;
+
+    // Ligne séparatrice
+    page.drawLine({
+      start: { x: tableX, y: yPosition + 15 },
+      end: { x: tableX + col1Width + col2Width, y: yPosition + 15 },
+      thickness: 1,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 10;
+
+    // Salaire brut
+    drawText('Salaire brut', tableX, yPosition);
+    drawText(formatCurrency(data.grossSalary), tableX + col1Width, yPosition);
+    yPosition -= 20;
+
+    // Déductions
+    data.deductions.forEach(deduction => {
+      drawText(deduction.label, tableX, yPosition);
+      drawText(`-${formatCurrency(deduction.amount)}`, tableX + col1Width, yPosition);
+      yPosition -= 20;
     });
 
-    try {
-      const page = await browser.newPage();
-      const html = await this.generatePayslipHTML(data);
+    // Total déductions
+    page.drawLine({
+      start: { x: tableX, y: yPosition + 15 },
+      end: { x: tableX + col1Width + col2Width, y: yPosition + 15 },
+      thickness: 1,
+      color: rgb(0, 0, 0),
+    });
+    yPosition -= 10;
+    drawBoldText('Total déductions', tableX, yPosition);
+    drawBoldText(`-${formatCurrency(data.totalDeductions)}`, tableX + col1Width, yPosition);
+    yPosition -= 30;
 
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+    // Salaire net
+    drawBoldText(`SALAIRE NET À PAYER: ${formatCurrency(data.netSalary)}`, width / 2 - 100, yPosition, {
+      size: 16,
+      color: rgb(0, 0.5, 0)
+    });
 
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '20px',
-          right: '20px',
-          bottom: '20px',
-          left: '20px'
-        }
-      });
+    // Pied de page
+    yPosition = 50;
+    drawText('Ce bulletin de paie est généré automatiquement par le système de gestion salariale.', 50, yPosition, { size: 10 });
+    yPosition -= 15;
+    drawText(`Date de génération: ${new Intl.DateTimeFormat('fr-FR').format(new Date())}`, 50, yPosition, { size: 10 });
 
-      return Buffer.from(pdfBuffer);
-    } finally {
-      await browser.close();
-    }
+    const pdfBytes = await pdfDoc.save();
+    return Buffer.from(pdfBytes);
   }
 
   async generateBulkPayslipsPDF(payslipsData: PayslipPDFData[]): Promise<Buffer> {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    const pdfDoc = await PDFDocument.create();
 
-    try {
-      const page = await browser.newPage();
+    for (const [index, data] of payslipsData.entries()) {
+      if (index > 0) {
+        // Ajouter une nouvelle page pour chaque bulletin après le premier
+        pdfDoc.addPage();
+      }
 
-      // Créer une page HTML avec tous les bulletins
-      const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Bulletins de Paie - Lot</title>
-          <style>
-            .page-break { page-break-before: always; }
-            body { margin: 0; }
-          </style>
-        </head>
-        <body>
-          ${await Promise.all(payslipsData.map(async (data, index) => {
-            const payslipHtml = await this.generatePayslipHTML(data);
-            const cleanHtml = payslipHtml
-              .replace(/<!DOCTYPE html>/, '')
-              .replace(/<html.*?>/, '')
-              .replace(/<\/html>/, '')
-              .replace(/<head>[\s\S]*?<\/head>/, '')
-              .replace(/<body.*?>/, '')
-              .replace(/<\/body>/, '');
+      const pages = pdfDoc.getPages();
+      const page = pages[pages.length - 1]; // Toujours prendre la dernière page
+      if (!page) continue; // Skip if page is undefined
+      const { width, height } = page.getSize();
 
-            return `${index > 0 ? '<div class="page-break"></div>' : ''}${cleanHtml}`;
-          }))}
-        </body>
-        </html>
-      `;
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      const fontSize = 12;
+      let yPosition = height - 50;
 
-      const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: {
-          top: '20px',
-          right: '20px',
-          bottom: '20px',
-          left: '20px'
-        }
+      // Fonction utilitaire pour formater la monnaie
+      const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('fr-FR', {
+          style: 'currency',
+          currency: data.company.currency,
+        }).format(amount);
+      };
+
+      // Fonction utilitaire pour dessiner du texte
+      const drawText = (text: string, x: number, y: number, options: any = {}) => {
+        page.drawText(text, { x, y, size: fontSize, font, ...options });
+      };
+
+      const drawBoldText = (text: string, x: number, y: number, options: any = {}) => {
+        page.drawText(text, { x, y, size: fontSize, font: boldFont, ...options });
+      };
+
+      // En-tête
+      drawBoldText('BULLETIN DE PAIE', width / 2 - 80, yPosition, { size: 18 });
+      yPosition -= 30;
+      drawBoldText(data.payRun.name, width / 2 - 60, yPosition, { size: 14 });
+      yPosition -= 20;
+      drawText(`Période: ${new Intl.DateTimeFormat('fr-FR').format(data.payRun.startDate)} - ${new Intl.DateTimeFormat('fr-FR').format(data.payRun.endDate)}`, width / 2 - 100, yPosition);
+      yPosition -= 40;
+
+      // Informations entreprise
+      drawBoldText('Informations Entreprise', 50, yPosition);
+      yPosition -= 20;
+      drawText(`Nom: ${data.company.name}`, 50, yPosition);
+      yPosition -= 15;
+      drawText(`Adresse: ${data.company.address}`, 50, yPosition);
+      yPosition -= 30;
+
+      // Informations employé
+      drawBoldText('Informations Employé', 50, yPosition);
+      yPosition -= 20;
+      drawText(`Nom: ${data.employee.fullName}`, 50, yPosition);
+      yPosition -= 15;
+      drawText(`Poste: ${data.employee.position}`, 50, yPosition);
+      yPosition -= 15;
+      drawText(`Type de contrat: ${data.employee.contractType}`, 50, yPosition);
+      yPosition -= 40;
+
+      // Détails salariaux
+      drawBoldText('Détail de la Paie', 50, yPosition);
+      yPosition -= 30;
+
+      // Tableau des salaires
+      const tableX = 50;
+      const col1Width = 200;
+      const col2Width = 150;
+
+      // En-têtes du tableau
+      drawBoldText('Description', tableX, yPosition);
+      drawBoldText('Montant', tableX + col1Width, yPosition);
+      yPosition -= 20;
+
+      // Ligne séparatrice
+      page.drawLine({
+        start: { x: tableX, y: yPosition + 15 },
+        end: { x: tableX + col1Width + col2Width, y: yPosition + 15 },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= 10;
+
+      // Salaire brut
+      drawText('Salaire brut', tableX, yPosition);
+      drawText(formatCurrency(data.grossSalary), tableX + col1Width, yPosition);
+      yPosition -= 20;
+
+      // Déductions
+      data.deductions.forEach(deduction => {
+        drawText(deduction.label, tableX, yPosition);
+        drawText(`-${formatCurrency(deduction.amount)}`, tableX + col1Width, yPosition);
+        yPosition -= 20;
       });
 
-      return Buffer.from(pdfBuffer);
-    } finally {
-      await browser.close();
+      // Total déductions
+      page.drawLine({
+        start: { x: tableX, y: yPosition + 15 },
+        end: { x: tableX + col1Width + col2Width, y: yPosition + 15 },
+        thickness: 1,
+        color: rgb(0, 0, 0),
+      });
+      yPosition -= 10;
+      drawBoldText('Total déductions', tableX, yPosition);
+      drawBoldText(`-${formatCurrency(data.totalDeductions)}`, tableX + col1Width, yPosition);
+      yPosition -= 30;
+
+      // Salaire net
+      drawBoldText(`SALAIRE NET À PAYER: ${formatCurrency(data.netSalary)}`, width / 2 - 100, yPosition, {
+        size: 16,
+        color: rgb(0, 0.5, 0)
+      });
+
+      // Pied de page
+      yPosition = 50;
+      drawText('Ce bulletin de paie est généré automatiquement par le système de gestion salariale.', 50, yPosition, { size: 10 });
+      yPosition -= 15;
+      drawText(`Date de génération: ${new Intl.DateTimeFormat('fr-FR').format(new Date())}`, 50, yPosition, { size: 10 });
     }
+
+    const pdfBytes = await pdfDoc.save();
+    return Buffer.from(pdfBytes);
   }
 }

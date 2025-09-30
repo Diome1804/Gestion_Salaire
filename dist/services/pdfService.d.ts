@@ -24,7 +24,7 @@ export interface PayslipPDFData {
     netSalary: number;
 }
 export declare class PDFService {
-    private generatePayslipHTML;
+    generatePayslipHTML(data: PayslipPDFData): Promise<string>;
     generatePayslipPDF(data: PayslipPDFData): Promise<Buffer>;
     generateBulkPayslipsPDF(payslipsData: PayslipPDFData[]): Promise<Buffer>;
 }

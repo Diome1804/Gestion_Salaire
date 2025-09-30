@@ -125,9 +125,40 @@ export class PayslipController implements IPayslipController {
       const payRunId = parseInt(req.params.payRunId);
       if (isNaN(payRunId)) throw new Error("ID du cycle invalide");
 
+      const payslips = await this.payslipService.getPayslipsByPayRun(payRunId);
+      if (payslips.length === 0) throw new Error("Aucun bulletin trouvé pour ce cycle");
+
       // TODO: Add company permission check for ADMIN role
-      // TODO: Implement bulk PDF generation
-      res.status(501).json({ error: "Export PDF en lot en cours d'implémentation" });
+
+      // Préparer les données pour le PDF en lot (version simplifiée)
+      const pdfDataArray: PayslipPDFData[] = payslips.map(payslip => ({
+        company: {
+          name: "Entreprise Demo",
+          address: "Adresse Demo",
+          currency: "XOF"
+        },
+        employee: {
+          fullName: `Employé ${payslip.employeeId}`,
+          position: "Poste Demo",
+          contractType: "FIXED"
+        },
+        payRun: {
+          name: `Cycle ${payslip.payRunId}`,
+          period: "01/09/2025 - 30/09/2025",
+          startDate: new Date(),
+          endDate: new Date()
+        },
+        grossSalary: payslip.grossSalary,
+        deductions: Array.isArray(payslip.deductions) ? payslip.deductions as {label: string, amount: number}[] : [],
+        totalDeductions: payslip.totalDeductions,
+        netSalary: payslip.netSalary
+      }));
+
+      const pdfBuffer = await this.pdfService.generateBulkPayslipsPDF(pdfDataArray);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="bulletins-cycle-${payRunId}.pdf"`);
+      res.send(pdfBuffer);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

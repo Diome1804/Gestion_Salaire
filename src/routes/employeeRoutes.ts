@@ -8,7 +8,7 @@ const router = Router();
 router.use(authenticate);
 
 // Create employee - SUPERADMIN or ADMIN
-router.post("/", authorize(["SUPERADMIN", "ADMIN"]), employeeController.createEmployee.bind(employeeController));
+router.post("/", authorize(["SUPERADMIN", "ADMIN","CAISSIER"]), employeeController.createEmployee.bind(employeeController));
 
 // Get all employees with filters - SUPERADMIN or ADMIN
 router.get("/", authorize(["SUPERADMIN", "ADMIN"]), employeeController.getAllEmployees.bind(employeeController));

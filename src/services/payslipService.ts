@@ -21,6 +21,10 @@ export class PayslipService implements IPayslipService {
     return this.payslipRepository.findByEmployee(employeeId);
   }
 
+  async getPayslipsByCompany(companyId: number): Promise<PayslipModel[]> {
+    return this.payslipRepository.findByCompany(companyId);
+  }
+
   async updatePayslip(id: number, data: {
     deductions?: Array<{label: string, amount: number}>;
     notes?: string;

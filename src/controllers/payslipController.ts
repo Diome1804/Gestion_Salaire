@@ -56,6 +56,20 @@ export class PayslipController implements IPayslipController {
     }
   }
 
+  async getPayslipsByCompany(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.params.companyId) throw new Error("ID de l'entreprise manquant");
+      const companyId = parseInt(req.params.companyId);
+      if (isNaN(companyId)) throw new Error("ID de l'entreprise invalide");
+
+      // TODO: Add company permission check for ADMIN role
+      const payslips = await this.payslipService.getPayslipsByCompany(companyId);
+      res.json(payslips);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
   async updatePayslip(req: Request, res: Response): Promise<void> {
     try {
       if (!req.params.id) throw new Error("ID manquant");

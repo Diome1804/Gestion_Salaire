@@ -53,6 +53,33 @@ export class PayslipRepository implements IPayslipRepository {
     });
   }
 
+  async findByCompany(companyId: number): Promise<PayslipModel[]> {
+    return prisma.payslip.findMany({
+      where: {
+        employee: {
+          companyId: companyId
+        }
+      },
+      include: {
+        payRun: {
+          include: {
+            company: true
+          }
+        },
+        employee: {
+          include: {
+            company: true
+          }
+        },
+        payments: true
+      },
+      orderBy: [
+        { payRun: { createdAt: 'desc' } },
+        { employee: { fullName: 'asc' } }
+      ]
+    });
+  }
+
   async update(id: number, data: Partial<{
     grossSalary: number;
     deductions: any[];

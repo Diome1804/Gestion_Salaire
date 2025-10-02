@@ -62,7 +62,14 @@ export class PayslipController implements IPayslipController {
       const companyId = parseInt(req.params.companyId);
       if (isNaN(companyId)) throw new Error("ID de l'entreprise invalide");
 
-      // TODO: Add company permission check for ADMIN role
+      const user = (req as any).user;
+      if (user.role === "ADMIN" || user.role === "CAISSIER") {
+        if (!user.companyId || user.companyId !== companyId) {
+          res.status(403).json({ error: "Accès refusé" });
+          return;
+        }
+      }
+
       const payslips = await this.payslipService.getPayslipsByCompany(companyId);
       res.json(payslips);
     } catch (error: any) {

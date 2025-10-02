@@ -4,6 +4,7 @@ export declare class PayslipRepository implements IPayslipRepository {
     findById(id: number): Promise<PayslipModel | null>;
     findByPayRun(payRunId: number): Promise<PayslipModel[]>;
     findByEmployee(employeeId: number): Promise<PayslipModel[]>;
+    findByCompany(companyId: number): Promise<PayslipModel[]>;
     update(id: number, data: Partial<{
         grossSalary: number;
         deductions: any[];

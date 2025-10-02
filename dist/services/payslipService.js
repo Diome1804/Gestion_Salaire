@@ -14,6 +14,9 @@ export class PayslipService {
     async getPayslipsByEmployee(employeeId) {
         return this.payslipRepository.findByEmployee(employeeId);
     }
+    async getPayslipsByCompany(companyId) {
+        return this.payslipRepository.findByCompany(companyId);
+    }
     async updatePayslip(id, data, userId) {
         // Vérifier que le bulletin peut être modifié
         const canModify = await this.canModifyPayslip(id);

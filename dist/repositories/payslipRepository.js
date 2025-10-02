@@ -46,6 +46,32 @@ export class PayslipRepository {
             orderBy: { payRun: { createdAt: 'desc' } }
         });
     }
+    async findByCompany(companyId) {
+        return prisma.payslip.findMany({
+            where: {
+                employee: {
+                    companyId: companyId
+                }
+            },
+            include: {
+                payRun: {
+                    include: {
+                        company: true
+                    }
+                },
+                employee: {
+                    include: {
+                        company: true
+                    }
+                },
+                payments: true
+            },
+            orderBy: [
+                { payRun: { createdAt: 'desc' } },
+                { employee: { fullName: 'asc' } }
+            ]
+        });
+    }
     async update(id, data) {
         return prisma.payslip.update({
             where: { id },

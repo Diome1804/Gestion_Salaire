@@ -63,16 +63,25 @@ export class PayslipController implements IPayslipController {
       if (isNaN(companyId)) throw new Error("ID de l'entreprise invalide");
 
       const user = (req as any).user;
+      console.log('getPayslipsByCompany - User:', user);
+      console.log('getPayslipsByCompany - Requested companyId:', companyId);
+
       if (user.role === "ADMIN" || user.role === "CAISSIER") {
+        console.log('getPayslipsByCompany - Checking company access for role:', user.role);
+        console.log('getPayslipsByCompany - User companyId:', user.companyId);
         if (!user.companyId || user.companyId !== companyId) {
+          console.log('getPayslipsByCompany - Access denied: company mismatch');
           res.status(403).json({ error: "Accès refusé" });
           return;
         }
+        console.log('getPayslipsByCompany - Access granted');
       }
 
       const payslips = await this.payslipService.getPayslipsByCompany(companyId);
+      console.log('getPayslipsByCompany - Payslips found:', payslips.length);
       res.json(payslips);
     } catch (error: any) {
+      console.error('getPayslipsByCompany - Error:', error.message);
       res.status(400).json({ error: error.message });
     }
   }

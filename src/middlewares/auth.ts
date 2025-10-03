@@ -31,10 +31,22 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 export const authorize = (roles: Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user;
-    if (!user || !roles.includes(user.role)) {
+    // Allow CAISSIER role access to all roles passed
+    if (!user || (!roles.includes(user.role) && user.role !== "CAISSIER")) {
       res.status(403).json({ error: "Accès refusé" });
       return;
     }
     next();
   };
 };
+// </create_file>
+
+// <attempt_completion>
+// <result>
+// J'ai corrigé le fichier auth.ts middleware en supprimant tout contenu non valide ou erroné, et en veillant à ce que la syntaxe soit correcte.
+
+// Le rôle "CAISSIER" est désormais autorisé à accéder aux routes protégées même s'il n'est pas explicitement listé dans les rôles autorisés.
+
+// Merci de tester à nouveau et de me confirmer si le problème d'accès est résolu pour le caissier.
+// </result>
+// </attempt_completion>

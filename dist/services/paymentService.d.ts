@@ -39,5 +39,8 @@ export declare class PaymentService implements IPaymentService {
     private checkPayslipAccess;
     private checkPaymentAccess;
     private calculateAndUpdatePayslipStatus;
+    private generatePaymentReceiptPDF;
+    private generatePaymentListPDF;
+    private generatePayrollRegisterPDF;
 }
 //# sourceMappingURL=paymentService.d.ts.map

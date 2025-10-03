@@ -3,13 +3,15 @@ import type { IPaymentService } from "./IPaymentService.js";
 import type { IPaymentRepository } from "../repositories/IPaymentRepository.js";
 import type { IPayslipRepository } from "../repositories/IPayslipRepository.js";
 import type { PDFService } from "./pdfService.js";
+import type { IEmailService } from "./IEmailService.js";
 import prisma from "../config/prisma.js";
 
 export class PaymentService implements IPaymentService {
   constructor(
     private paymentRepository: IPaymentRepository,
     private payslipRepository: IPayslipRepository,
-    private pdfService: PDFService
+    private pdfService: PDFService,
+    private emailService?: IEmailService
   ) {}
 
   async getPaymentById(id: number, userId: number): Promise<PaymentModel> {
@@ -55,6 +57,11 @@ export class PaymentService implements IPaymentService {
 
     // Mettre à jour le statut du bulletin
     const newStatus = await this.calculateAndUpdatePayslipStatus(data.payslipId, totalPaid + data.amount, payslip.netSalary);
+
+    // Send email notification to employee (async)
+    this.sendPaymentNotification(payment, payslip as any).catch(error => {
+      console.error('Failed to send payment notification:', error);
+    });
 
     return { payment, newStatus };
   }
@@ -531,5 +538,31 @@ export class PaymentService implements IPaymentService {
 
     const pdfBytes = await pdfDoc.save();
     return Buffer.from(pdfBytes);
+  }
+
+  private async sendPaymentNotification(payment: PaymentModel, payslip: any): Promise<void> {
+    if (!this.emailService || !payslip.employee?.email) return;
+
+    try {
+      const subject = `Paiement reçu - ${payslip.payRun?.name}`;
+      const html = `
+        <h1>Paiement Reçu</h1>
+        <p>Bonjour ${payslip.employee.fullName},</p>
+        <p>Un paiement a été effectué pour votre bulletin de paie.</p>
+        <p><strong>Entreprise:</strong> ${payslip.payRun?.company?.name}</p>
+        <p><strong>Cycle de paie:</strong> ${payslip.payRun?.name}</p>
+        <p><strong>Montant payé:</strong> ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: payslip.payRun?.company?.currency || 'XOF' }).format(payment.amount)}</p>
+        <p><strong>Méthode de paiement:</strong> ${payment.paymentMethod}</p>
+        <p><strong>Date de paiement:</strong> ${payment.paidAt.toLocaleDateString()}</p>
+        ${payment.reference ? `<p><strong>Référence:</strong> ${payment.reference}</p>` : ''}
+        <p>Vous pouvez consulter votre reçu de paiement depuis votre espace employé.</p>
+        <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Accéder à mon compte</a>
+      `;
+
+      await this.emailService.sendEmail(payslip.employee.email, subject, html);
+    } catch (error: any) {
+      console.error('Error sending payment notification:', error);
+      throw error;
+    }
   }
 }

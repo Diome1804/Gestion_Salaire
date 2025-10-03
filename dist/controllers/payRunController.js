@@ -1,7 +1,11 @@
 export class PayRunController {
     payRunService;
-    constructor(payRunService) {
+    payslipService;
+    emailService;
+    constructor(payRunService, payslipService, emailService) {
         this.payRunService = payRunService;
+        this.payslipService = payslipService;
+        this.emailService = emailService;
     }
     async createPayRun(req, res) {
         try {
@@ -14,6 +18,10 @@ export class PayRunController {
                 createdBy: caller.id
             };
             const payRun = await this.payRunService.createPayRun(data);
+            // Send email notifications to employees (async)
+            this.sendPayslipNotifications(payRun.id).catch(error => {
+                console.error('Failed to send payslip notifications:', error);
+            });
             res.status(201).json({ message: "Cycle de paie créé", payRun });
         }
         catch (error) {
@@ -152,6 +160,32 @@ export class PayRunController {
         }
         catch (error) {
             res.status(400).json({ error: error.message });
+        }
+    }
+    async sendPayslipNotifications(payRunId) {
+        try {
+            // Get payslips for this payrun with employee and company data
+            const payslips = await this.payslipService.getPayslipsByPayRun(payRunId);
+            for (const payslip of payslips) {
+                if (payslip.employee?.email) {
+                    const subject = `Votre bulletin de paie - ${payslip.payRun?.name}`;
+                    const html = `
+            <h1>Bulletin de Paie Disponible</h1>
+            <p>Bonjour ${payslip.employee.fullName},</p>
+            <p>Votre bulletin de paie pour la période ${payslip.payRun?.period || payslip.payRun?.name} est maintenant disponible.</p>
+            <p><strong>Entreprise:</strong> ${payslip.payRun?.company?.name}</p>
+            <p><strong>Salaire brut:</strong> ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: payslip.payRun?.company?.currency || 'XOF' }).format(payslip.grossSalary)}</p>
+            <p><strong>Salaire net:</strong> ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: payslip.payRun?.company?.currency || 'XOF' }).format(payslip.netSalary)}</p>
+            <p>Vous pouvez consulter et télécharger votre bulletin depuis votre espace employé.</p>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Accéder à mon compte</a>
+          `;
+                    await this.emailService.sendEmail(payslip.employee.email, subject, html);
+                }
+            }
+        }
+        catch (error) {
+            console.error('Error sending payslip notifications:', error);
+            throw error;
         }
     }
 }

@@ -1,9 +1,11 @@
 import type { Request, Response } from "express";
 import type { IPayRunController } from "./IPayRunController.js";
 import type { IPayRunService } from "../services/IPayRunService.js";
+import type { IPayslipService } from "../services/IPayslipService.js";
+import type { IEmailService } from "../services/IEmailService.js";
 
 export class PayRunController implements IPayRunController {
-  constructor(private payRunService: IPayRunService) {}
+  constructor(private payRunService: IPayRunService, private payslipService: IPayslipService, private emailService: IEmailService) {}
 
   async createPayRun(req: Request, res: Response): Promise<void> {
     try {
@@ -17,6 +19,12 @@ export class PayRunController implements IPayRunController {
       };
 
       const payRun = await this.payRunService.createPayRun(data as any);
+
+      // Send email notifications to employees (async)
+      this.sendPayslipNotifications(payRun.id).catch(error => {
+        console.error('Failed to send payslip notifications:', error);
+      });
+
       res.status(201).json({ message: "Cycle de paie créé", payRun });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -156,6 +164,34 @@ export class PayRunController implements IPayRunController {
       res.json({ message: "Cycle de paie supprimé" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
+    }
+  }
+
+  private async sendPayslipNotifications(payRunId: number): Promise<void> {
+    try {
+      // Get payslips for this payrun with employee and company data
+      const payslips = await this.payslipService.getPayslipsByPayRun(payRunId) as any[];
+
+      for (const payslip of payslips) {
+        if (payslip.employee?.email) {
+          const subject = `Votre bulletin de paie - ${payslip.payRun?.name}`;
+          const html = `
+            <h1>Bulletin de Paie Disponible</h1>
+            <p>Bonjour ${payslip.employee.fullName},</p>
+            <p>Votre bulletin de paie pour la période ${payslip.payRun?.period || payslip.payRun?.name} est maintenant disponible.</p>
+            <p><strong>Entreprise:</strong> ${payslip.payRun?.company?.name}</p>
+            <p><strong>Salaire brut:</strong> ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: payslip.payRun?.company?.currency || 'XOF' }).format(payslip.grossSalary)}</p>
+            <p><strong>Salaire net:</strong> ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: payslip.payRun?.company?.currency || 'XOF' }).format(payslip.netSalary)}</p>
+            <p>Vous pouvez consulter et télécharger votre bulletin depuis votre espace employé.</p>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Accéder à mon compte</a>
+          `;
+
+          await this.emailService.sendEmail(payslip.employee.email, subject, html);
+        }
+      }
+    } catch (error: any) {
+      console.error('Error sending payslip notifications:', error);
+      throw error;
     }
   }
 }

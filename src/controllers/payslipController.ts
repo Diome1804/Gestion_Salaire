@@ -2,6 +2,30 @@ import type { Request, Response } from "express";
 import type { IPayslipController } from "./IPayslipController.js";
 import type { IPayslipService } from "../services/IPayslipService.js";
 import { PDFService, type PayslipPDFData } from "../services/pdfService.js";
+import type { Payslip as PayslipModel } from "@prisma/client";
+
+type PayslipWithRelations = PayslipModel & {
+  payRun?: {
+    id: number;
+    name: string;
+    period: string;
+    startDate: Date;
+    endDate: Date;
+    company?: {
+      id: number;
+      name: string;
+      address: string;
+      currency: string;
+    };
+  };
+  employee?: {
+    id: number;
+    fullName: string;
+    position: string;
+    contractType: string;
+    companyId: number;
+  };
+};
 
 export class PayslipController implements IPayslipController {
   constructor(
@@ -109,28 +133,33 @@ export class PayslipController implements IPayslipController {
       const id = parseInt(req.params.id);
       if (isNaN(id)) throw new Error("ID invalide");
 
-      const payslip = await this.payslipService.getPayslipById(id);
+      const payslip = await this.payslipService.getPayslipById(id) as PayslipWithRelations | null;
       if (!payslip) throw new Error("Bulletin de paie non trouvé");
 
-      // TODO: Add company permission check for ADMIN role
+      // Vérification des permissions
+      const caller = (req as any).user;
+      if (caller.role === "ADMIN" && payslip.employee?.companyId !== caller.companyId) {
+        res.status(403).json({ error: "Accès refusé" });
+        return;
+      }
 
-      // Pour l'instant, créer un PDF simple avec les données de base
+      // Utiliser les vraies données de la base
       const pdfData: PayslipPDFData = {
         company: {
-          name: "Entreprise Demo",
-          address: "Adresse Demo",
-          currency: "XOF"
+          name: payslip.payRun?.company?.name || "Entreprise",
+          address: payslip.payRun?.company?.address || "Adresse",
+          currency: payslip.payRun?.company?.currency || "XOF"
         },
         employee: {
-          fullName: `Employé ${payslip.employeeId}`,
-          position: "Poste Demo",
-          contractType: "FIXED"
+          fullName: payslip.employee?.fullName || "Employé",
+          position: payslip.employee?.position || "Poste",
+          contractType: payslip.employee?.contractType || "FIXED"
         },
         payRun: {
-          name: `Cycle ${payslip.payRunId}`,
-          period: "01/09/2025 - 30/09/2025",
-          startDate: new Date(),
-          endDate: new Date()
+          name: payslip.payRun?.name || `Cycle ${payslip.payRunId}`,
+          period: payslip.payRun?.period || "",
+          startDate: payslip.payRun?.startDate || new Date(),
+          endDate: payslip.payRun?.endDate || new Date()
         },
         grossSalary: payslip.grossSalary,
         deductions: Array.isArray(payslip.deductions) ? payslip.deductions as {label: string, amount: number}[] : [],
@@ -141,7 +170,7 @@ export class PayslipController implements IPayslipController {
       const pdfBuffer = await this.pdfService.generatePayslipPDF(pdfData);
 
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="bulletin-${payslip.id}.pdf"`);
+      res.setHeader('Content-Disposition', `attachment; filename="bulletin-${payslip.employee?.fullName?.replace(/\s+/g, '-') || payslip.id}.pdf"`);
       res.send(pdfBuffer);
     } catch (error: any) {
       console.error('Erreur export PDF:', error);
@@ -155,28 +184,33 @@ export class PayslipController implements IPayslipController {
       const payRunId = parseInt(req.params.payRunId);
       if (isNaN(payRunId)) throw new Error("ID du cycle invalide");
 
-      const payslips = await this.payslipService.getPayslipsByPayRun(payRunId);
+      const payslips = await this.payslipService.getPayslipsByPayRun(payRunId) as PayslipWithRelations[];
       if (payslips.length === 0) throw new Error("Aucun bulletin trouvé pour ce cycle");
 
-      // TODO: Add company permission check for ADMIN role
+      // Vérification des permissions
+      const caller = (req as any).user;
+      if (caller.role === "ADMIN" && payslips[0]?.employee?.companyId !== caller.companyId) {
+        res.status(403).json({ error: "Accès refusé" });
+        return;
+      }
 
-      // Préparer les données pour le PDF en lot (version simplifiée)
+      // Préparer les données pour le PDF en lot
       const pdfDataArray: PayslipPDFData[] = payslips.map(payslip => ({
         company: {
-          name: "Entreprise Demo",
-          address: "Adresse Demo",
-          currency: "XOF"
+          name: payslip.payRun?.company?.name || "Entreprise",
+          address: payslip.payRun?.company?.address || "Adresse",
+          currency: payslip.payRun?.company?.currency || "XOF"
         },
         employee: {
-          fullName: `Employé ${payslip.employeeId}`,
-          position: "Poste Demo",
-          contractType: "FIXED"
+          fullName: payslip.employee?.fullName || "Employé",
+          position: payslip.employee?.position || "Poste",
+          contractType: payslip.employee?.contractType || "FIXED"
         },
         payRun: {
-          name: `Cycle ${payslip.payRunId}`,
-          period: "01/09/2025 - 30/09/2025",
-          startDate: new Date(),
-          endDate: new Date()
+          name: payslip.payRun?.name || `Cycle ${payslip.payRunId}`,
+          period: payslip.payRun?.period || "",
+          startDate: payslip.payRun?.startDate || new Date(),
+          endDate: payslip.payRun?.endDate || new Date()
         },
         grossSalary: payslip.grossSalary,
         deductions: Array.isArray(payslip.deductions) ? payslip.deductions as {label: string, amount: number}[] : [],

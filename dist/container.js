@@ -39,12 +39,12 @@ const companyService = new CompanyService(companyRepository);
 const employeeService = new EmployeeService(employeeRepository);
 const payRunService = new PayRunService(payRunRepository, employeeRepository);
 const payslipService = new PayslipService(payslipRepository, payRunService);
-const paymentService = new PaymentService(paymentRepository, payslipRepository, pdfService);
+const paymentService = new PaymentService(paymentRepository, payslipRepository, pdfService, emailService);
 // Inject into controllers
 const authController = new AuthController(authService);
 const companyController = new CompanyController(companyService, fileUploadService);
 const employeeController = new EmployeeController(employeeService);
-const payRunController = new PayRunController(payRunService);
+const payRunController = new PayRunController(payRunService, payslipService, emailService);
 const payslipController = new PayslipController(payslipService, pdfService);
 const paymentController = new PaymentController(paymentService);
 export { authController, companyController, employeeController, payRunController, payslipController, paymentController };

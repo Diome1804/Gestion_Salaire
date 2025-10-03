@@ -111,24 +111,29 @@ export class PayslipController {
             const payslip = await this.payslipService.getPayslipById(id);
             if (!payslip)
                 throw new Error("Bulletin de paie non trouvé");
-            // TODO: Add company permission check for ADMIN role
-            // Pour l'instant, créer un PDF simple avec les données de base
+            // Vérification des permissions
+            const caller = req.user;
+            if (caller.role === "ADMIN" && payslip.employee?.companyId !== caller.companyId) {
+                res.status(403).json({ error: "Accès refusé" });
+                return;
+            }
+            // Utiliser les vraies données de la base
             const pdfData = {
                 company: {
-                    name: "Entreprise Demo",
-                    address: "Adresse Demo",
-                    currency: "XOF"
+                    name: payslip.payRun?.company?.name || "Entreprise",
+                    address: payslip.payRun?.company?.address || "Adresse",
+                    currency: payslip.payRun?.company?.currency || "XOF"
                 },
                 employee: {
-                    fullName: `Employé ${payslip.employeeId}`,
-                    position: "Poste Demo",
-                    contractType: "FIXED"
+                    fullName: payslip.employee?.fullName || "Employé",
+                    position: payslip.employee?.position || "Poste",
+                    contractType: payslip.employee?.contractType || "FIXED"
                 },
                 payRun: {
-                    name: `Cycle ${payslip.payRunId}`,
-                    period: "01/09/2025 - 30/09/2025",
-                    startDate: new Date(),
-                    endDate: new Date()
+                    name: payslip.payRun?.name || `Cycle ${payslip.payRunId}`,
+                    period: payslip.payRun?.period || "",
+                    startDate: payslip.payRun?.startDate || new Date(),
+                    endDate: payslip.payRun?.endDate || new Date()
                 },
                 grossSalary: payslip.grossSalary,
                 deductions: Array.isArray(payslip.deductions) ? payslip.deductions : [],
@@ -137,7 +142,7 @@ export class PayslipController {
             };
             const pdfBuffer = await this.pdfService.generatePayslipPDF(pdfData);
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename="bulletin-${payslip.id}.pdf"`);
+            res.setHeader('Content-Disposition', `attachment; filename="bulletin-${payslip.employee?.fullName?.replace(/\s+/g, '-') || payslip.id}.pdf"`);
             res.send(pdfBuffer);
         }
         catch (error) {
@@ -155,24 +160,29 @@ export class PayslipController {
             const payslips = await this.payslipService.getPayslipsByPayRun(payRunId);
             if (payslips.length === 0)
                 throw new Error("Aucun bulletin trouvé pour ce cycle");
-            // TODO: Add company permission check for ADMIN role
-            // Préparer les données pour le PDF en lot (version simplifiée)
+            // Vérification des permissions
+            const caller = req.user;
+            if (caller.role === "ADMIN" && payslips[0]?.employee?.companyId !== caller.companyId) {
+                res.status(403).json({ error: "Accès refusé" });
+                return;
+            }
+            // Préparer les données pour le PDF en lot
             const pdfDataArray = payslips.map(payslip => ({
                 company: {
-                    name: "Entreprise Demo",
-                    address: "Adresse Demo",
-                    currency: "XOF"
+                    name: payslip.payRun?.company?.name || "Entreprise",
+                    address: payslip.payRun?.company?.address || "Adresse",
+                    currency: payslip.payRun?.company?.currency || "XOF"
                 },
                 employee: {
-                    fullName: `Employé ${payslip.employeeId}`,
-                    position: "Poste Demo",
-                    contractType: "FIXED"
+                    fullName: payslip.employee?.fullName || "Employé",
+                    position: payslip.employee?.position || "Poste",
+                    contractType: payslip.employee?.contractType || "FIXED"
                 },
                 payRun: {
-                    name: `Cycle ${payslip.payRunId}`,
-                    period: "01/09/2025 - 30/09/2025",
-                    startDate: new Date(),
-                    endDate: new Date()
+                    name: payslip.payRun?.name || `Cycle ${payslip.payRunId}`,
+                    period: payslip.payRun?.period || "",
+                    startDate: payslip.payRun?.startDate || new Date(),
+                    endDate: payslip.payRun?.endDate || new Date()
                 },
                 grossSalary: payslip.grossSalary,
                 deductions: Array.isArray(payslip.deductions) ? payslip.deductions : [],

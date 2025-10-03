@@ -406,7 +406,7 @@ export class PaymentService implements IPaymentService {
     // En-têtes du tableau
     headers.forEach((header, index) => {
       let x = tableX;
-      for (let i = 0; i < index; i++) x += colWidths[i];
+      for (let i = 0; i < index; i++) x += colWidths[i] ?? 0;
       drawBoldText(header, x, yPosition);
     });
     yPosition -= 15;
@@ -434,7 +434,7 @@ export class PaymentService implements IPaymentService {
 
       values.forEach((value, index) => {
         drawText(value, x, yPosition);
-        x += colWidths[index];
+        x += colWidths[index] ?? 0;
       });
       yPosition -= 15;
     });
@@ -489,7 +489,7 @@ export class PaymentService implements IPaymentService {
     // En-têtes du tableau
     headers.forEach((header, index) => {
       let x = tableX;
-      for (let i = 0; i < index; i++) x += colWidths[i];
+      for (let i = 0; i < index; i++) x += colWidths[i] ?? 0;
       drawBoldText(header, x, yPosition);
     });
     yPosition -= 15;
@@ -518,7 +518,7 @@ export class PaymentService implements IPaymentService {
 
       values.forEach((value, index) => {
         drawText(value, x, yPosition);
-        x += colWidths[index];
+        x += colWidths[index] ?? 0;
       });
       yPosition -= 12;
     });

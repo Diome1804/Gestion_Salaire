@@ -12,5 +12,9 @@ router.post("/create-user", authenticate, authorize(["SUPERADMIN", "ADMIN"]), au
 router.get("/users", authenticate, authorize(["SUPERADMIN"]), authController.getAllUsers.bind(authController));
 router.delete("/users/:id", authenticate, authorize(["SUPERADMIN"]), authController.deleteUser.bind(authController));
 router.post("/change-password", authenticate, authController.changePassword.bind(authController));
+
+// Impersonation routes - SUPERADMIN only
+router.post("/impersonate", authenticate, authorize(["SUPERADMIN"]), authController.impersonateCompany.bind(authController));
+router.post("/stop-impersonation", authenticate, authorize(["SUPERADMIN"]), authController.stopImpersonation.bind(authController));
  
 export default router;

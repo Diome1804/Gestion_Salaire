@@ -32,6 +32,7 @@ model Company {
   address    String
   currency   String
   periodType PeriodType
+  allowImpersonation Boolean @default(false)
   users      Users[]
   employees  Employee[]
   payRuns    PayRun[]

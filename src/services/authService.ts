@@ -88,4 +88,20 @@ export class AuthService implements IAuthService {
   async deleteUser(userId: number): Promise<void> {
     await this.userRepository.delete(userId);
   }
+
+  async getCompanyById(companyId: number) {
+    return await prisma.company.findUnique({
+      where: { id: companyId }
+    });
+  }
+
+  async createImpersonationToken(superAdminId: number, companyId: number): Promise<string> {
+    // Create a JWT token with impersonation claims
+    const payload = {
+      id: superAdminId,
+      role: "SUPERADMIN" as Role,
+      impersonatingCompanyId: companyId
+    };
+    return this.jwtUtils.generateToken(payload);
+  }
 }

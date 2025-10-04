@@ -85,4 +85,35 @@ export class CompanyController implements ICompanyController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async toggleImpersonationPermission(req: Request, res: Response): Promise<void> {
+    try {
+      const caller = (req as any).user;
+      if (!req.params.id) {
+        res.status(400).json({ error: "ID manquant" });
+        return;
+      }
+      const companyId = parseInt(req.params.id);
+
+      // Vérifier que l'utilisateur est admin de cette entreprise
+      if (caller.role !== 'SUPERADMIN' && caller.companyId !== companyId) {
+        res.status(403).json({ error: "Accès non autorisé" });
+        return;
+      }
+
+      const { allowImpersonation } = req.body;
+      if (typeof allowImpersonation !== 'boolean') {
+        res.status(400).json({ error: "allowImpersonation doit être un booléen" });
+        return;
+      }
+
+      const company = await this.companyService.updateCompany(companyId, { allowImpersonation });
+      res.json({
+        message: `Autorisation d'impersonnation ${allowImpersonation ? 'activée' : 'désactivée'}`,
+        company
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }

@@ -14,4 +14,7 @@ router.put("/:id", authenticate, authorize(["SUPERADMIN"]), upload.single("logo"
 router.delete("/:id", authenticate, authorize(["SUPERADMIN"]), (req, res) => companyController.deleteCompany(req, res));
 router.get("/", authenticate, authorize(["SUPERADMIN"]), (req, res) => companyController.getAllCompanies(req, res));
 
+// Route for impersonation permission - superadmin and company admin
+router.put("/:id/impersonation", authenticate, authorize(["SUPERADMIN", "ADMIN"]), (req, res) => companyController.toggleImpersonationPermission(req, res));
+
 export default router;

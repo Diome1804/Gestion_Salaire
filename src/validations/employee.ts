@@ -6,7 +6,7 @@ export const createEmployeeSchema = z.object({
   contractType: z.enum(["DAILY", "FIXED", "FREELANCE", "HONORAIRE"]),
   rateOrSalary: z.number().positive("Le taux/salaire doit être positif"),
   bankDetails: z.string().optional(),
-  email: z.string().email("Email invalide").optional(),
+  email: z.string().email("Email invalide").min(1, "L'email est requis"),
   matricule: z.string().optional(),
   companyId: z.number().optional(),
 });
@@ -17,6 +17,6 @@ export const updateEmployeeSchema = z.object({
   contractType: z.enum(["DAILY", "FIXED", "FREELANCE", "HONORAIRE"]).optional(),
   rateOrSalary: z.number().positive().optional(),
   bankDetails: z.string().optional(),
-  email: z.string().email("Email invalide").optional(),
+  email: z.string().email("Email invalide").min(1, "L'email est requis").optional(),
   matricule: z.string().optional(),
 });

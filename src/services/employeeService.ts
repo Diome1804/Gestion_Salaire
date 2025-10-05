@@ -12,10 +12,14 @@ export class EmployeeService implements IEmployeeService {
     contractType: ContractType;
     rateOrSalary: number;
     bankDetails?: string;
-    email?: string;
+    email: string;
     matricule?: string;
     companyId: number;
   }): Promise<EmployeeModel> {
+    // Validate email is provided
+    if (!data.email || !data.email.trim()) {
+      throw new Error("L'email est obligatoire pour tous les employés");
+    }
     return this.employeeRepository.create(data);
   }
 

@@ -7,7 +7,7 @@ export interface IEmployeeService {
     contractType: ContractType;
     rateOrSalary: number;
     bankDetails?: string;
-    email?: string;
+    email: string;
     matricule?: string;
     companyId: number;
   }): Promise<Employee>;

@@ -17,6 +17,13 @@ export class EmployeeController implements IEmployeeController {
     try {
       const data = createEmployeeSchema.parse(req.body);
       const caller = (req as any).user;
+      
+      // Validate email is provided
+      if (!data.email || !data.email.trim()) {
+        res.status(400).json({ error: "L'email est obligatoire pour tous les employés" });
+        return;
+      }
+      
       // Set companyId for ADMIN
       if (caller.role === "ADMIN") {
         data.companyId = caller.companyId;
@@ -27,7 +34,35 @@ export class EmployeeController implements IEmployeeController {
         }
       }
       const employee = await this.employeeService.createEmployee(data as any);
-      res.json({ message: "Employé créé", employee });
+      
+      // Automatically generate QR code after employee creation
+      try {
+        const { v4: uuidv4 } = await import('uuid');
+        const qrCode = `EMP-${employee.id}-${uuidv4()}`;
+        
+        await prisma.employee.update({
+          where: { id: employee.id },
+          data: { qrCode },
+        });
+        
+        // Send QR code by email
+        if (this.emailService) {
+          await this.emailService.sendQRCode(employee, qrCode);
+        }
+        
+        res.json({ 
+          message: "Employé créé et code QR envoyé par email", 
+          employee: { ...employee, qrCode },
+          qrCodeSent: true 
+        });
+      } catch (qrError) {
+        console.error('Error generating/sending QR code:', qrError);
+        res.json({ 
+          message: "Employé créé mais erreur lors de l'envoi du code QR", 
+          employee,
+          qrCodeSent: false 
+        });
+      }
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

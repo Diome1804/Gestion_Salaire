@@ -12,6 +12,8 @@ export class EmployeeService implements IEmployeeService {
     contractType: ContractType;
     rateOrSalary: number;
     bankDetails?: string;
+    email?: string;
+    matricule?: string;
     companyId: number;
   }): Promise<EmployeeModel> {
     return this.employeeRepository.create(data);
@@ -23,6 +25,8 @@ export class EmployeeService implements IEmployeeService {
     contractType: ContractType;
     rateOrSalary: number;
     bankDetails: string;
+    email: string;
+    matricule: string;
   }>): Promise<EmployeeModel> {
     const employee = await this.employeeRepository.findById(id);
     if (!employee) throw new Error("Employé non trouvé");

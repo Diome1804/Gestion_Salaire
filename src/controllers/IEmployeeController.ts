@@ -8,4 +8,6 @@ export interface IEmployeeController {
   deleteEmployee(req: Request, res: Response): Promise<void>;
   activateEmployee(req: Request, res: Response): Promise<void>;
   deactivateEmployee(req: Request, res: Response): Promise<void>;
+  generateQRCode(req: Request, res: Response): Promise<void>;
+  getQRCode(req: Request, res: Response): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import type { Employee as EmployeeModel, ContractType } from "@prisma/client";
+import type { Employee, ContractType } from "@prisma/client";
 
 export interface IEmployeeService {
   createEmployee(data: {
@@ -7,23 +7,30 @@ export interface IEmployeeService {
     contractType: ContractType;
     rateOrSalary: number;
     bankDetails?: string;
+    email?: string;
+    matricule?: string;
     companyId: number;
-  }): Promise<EmployeeModel>;
+  }): Promise<Employee>;
+
   updateEmployee(id: number, data: Partial<{
     fullName: string;
     position: string;
     contractType: ContractType;
     rateOrSalary: number;
     bankDetails: string;
-  }>): Promise<EmployeeModel>;
+    email: string;
+    matricule: string;
+  }>): Promise<Employee>;
+
   getAllEmployees(filters?: {
     companyId?: number;
     isActive?: boolean;
     position?: string;
     contractType?: ContractType;
-  }): Promise<EmployeeModel[]>;
-  getEmployeeById(id: number): Promise<EmployeeModel | null>;
+  }): Promise<Employee[]>;
+
+  getEmployeeById(id: number): Promise<Employee | null>;
   deleteEmployee(id: number): Promise<void>;
-  activateEmployee(id: number): Promise<EmployeeModel>;
-  deactivateEmployee(id: number): Promise<EmployeeModel>;
+  activateEmployee(id: number): Promise<Employee>;
+  deactivateEmployee(id: number): Promise<Employee>;
 }

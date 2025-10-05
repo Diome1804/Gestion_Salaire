@@ -46,7 +46,7 @@ const paymentService = new PaymentService(paymentRepository, payslipRepository, 
 // Inject into controllers
 const authController = new AuthController(authService);
 const companyController = new CompanyController(companyService, fileUploadService);
-const employeeController = new EmployeeController(employeeService);
+const employeeController = new EmployeeController(employeeService, emailService);
 const payRunController = new PayRunController(payRunService, payslipService, emailService);
 const payslipController = new PayslipController(payslipService, pdfService);
 const paymentController = new PaymentController(paymentService);

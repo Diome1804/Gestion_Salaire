@@ -48,6 +48,7 @@ export declare class AuthService implements IAuthService {
         address: string;
         currency: string;
         periodType: import("@prisma/client").$Enums.PeriodType;
+        allowImpersonation: boolean;
     } | null>;
     createImpersonationToken(superAdminId: number, companyId: number): Promise<string>;
 }

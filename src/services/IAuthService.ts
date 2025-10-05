@@ -8,4 +8,6 @@ export interface IAuthService {
   changePassword(userId: number, newPassword: string): Promise<void>;
   getAllUsers(): Promise<User[]>;
   deleteUser(userId: number): Promise<void>;
+  getCompanyById(companyId: number): Promise<any>;
+  createImpersonationToken(userId: number, companyId: number): Promise<string>;
 }

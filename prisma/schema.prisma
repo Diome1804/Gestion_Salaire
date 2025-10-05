@@ -22,6 +22,7 @@ model Users {
   isTempPassword Boolean @default(false)
   createdPayRuns PayRun[]
   createdPayments Payment[]
+  scannedAttendances Attendance[]
   createdAt     DateTime @default(now())
 }
 
@@ -46,6 +47,9 @@ model Employee {
   contractType  ContractType
   rateOrSalary  Float
   bankDetails   String?
+  email         String?
+  qrCode        String?      @unique
+  matricule     String?      @unique
   isActive      Boolean      @default(true)
   companyId     Int
   company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -112,8 +116,12 @@ model Attendance {
   payRunId     Int?
   payRun       PayRun?   @relation(fields: [payRunId], references: [id], onDelete: SetNull)
   date         DateTime
+  checkInTime  DateTime?
+  checkOutTime DateTime?
   hoursWorked  Float     @default(0)
   isPresent    Boolean   @default(false)
+  scannedBy    Int?
+  scannedByUser Users?   @relation(fields: [scannedBy], references: [id], onDelete: SetNull)
   notes        String?
   createdAt    DateTime  @default(now())
 }
@@ -122,6 +130,7 @@ enum Role {
   SUPERADMIN
   ADMIN
   CAISSIER
+  VIGILE
 }
 
 enum PeriodType {
@@ -134,6 +143,7 @@ enum ContractType {
   DAILY
   FIXED
   FREELANCE
+  HONORAIRE
 }
 
 enum PayRunStatus {

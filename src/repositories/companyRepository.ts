@@ -12,7 +12,7 @@ export class CompanyRepository implements ICompanyRepository {
     return prisma.company.findUnique({ where: { id } });
   }
 
-  async update(id: number, data: { name?: string; logo?: string | null; address?: string; currency?: string; periodType?: PeriodType }): Promise<Company> {
+  async update(id: number, data: { name?: string; logo?: string | null; address?: string; currency?: string; periodType?: PeriodType; allowImpersonation?: boolean }): Promise<Company> {
     return prisma.company.update({ where: { id }, data });
   }
 

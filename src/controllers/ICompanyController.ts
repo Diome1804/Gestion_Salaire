@@ -6,4 +6,5 @@ export interface ICompanyController {
   updateCompany(req: Request, res: Response): Promise<void>;
   deleteCompany(req: Request, res: Response): Promise<void>;
   getAllCompanies(req: Request, res: Response): Promise<void>;
+  toggleImpersonationPermission(req: Request, res: Response): Promise<void>;
 }

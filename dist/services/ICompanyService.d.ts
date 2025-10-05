@@ -14,6 +14,7 @@ export interface ICompanyService {
         address?: string | undefined;
         currency?: string | undefined;
         periodType?: PeriodType | undefined;
+        allowImpersonation?: boolean | undefined;
     }>): Promise<CompanyModel>;
     deleteCompany(id: number): Promise<void>;
     getAllCompanies(): Promise<CompanyModel[]>;

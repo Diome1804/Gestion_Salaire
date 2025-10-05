@@ -73,5 +73,19 @@ export class AuthService {
     async deleteUser(userId) {
         await this.userRepository.delete(userId);
     }
+    async getCompanyById(companyId) {
+        return await prisma.company.findUnique({
+            where: { id: companyId }
+        });
+    }
+    async createImpersonationToken(superAdminId, companyId) {
+        // Create a JWT token with impersonation claims
+        const payload = {
+            id: superAdminId,
+            role: "SUPERADMIN",
+            impersonatingCompanyId: companyId
+        };
+        return this.jwtUtils.generateToken(payload);
+    }
 }
 //# sourceMappingURL=authService.js.map

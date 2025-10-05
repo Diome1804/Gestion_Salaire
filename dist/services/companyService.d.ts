@@ -18,6 +18,7 @@ export declare class CompanyService implements ICompanyService {
         address?: string | undefined;
         currency?: string | undefined;
         periodType?: PeriodType | undefined;
+        allowImpersonation?: boolean | undefined;
     }>): Promise<Company>;
     deleteCompany(id: number): Promise<void>;
     getAllCompanies(): Promise<Company[]>;

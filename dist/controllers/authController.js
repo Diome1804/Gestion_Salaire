@@ -102,5 +102,64 @@ export class AuthController {
             res.status(500).json({ error: error.message });
         }
     }
+    async impersonateCompany(req, res) {
+        try {
+            const caller = req.user;
+            // Vérifier que l'utilisateur est SUPERADMIN
+            if (caller.role !== 'SUPERADMIN') {
+                res.status(403).json({ error: "Accès refusé - SUPERADMIN requis" });
+                return;
+            }
+            const companyId = req.body.companyId;
+            if (!companyId) {
+                res.status(400).json({ error: "companyId manquant" });
+                return;
+            }
+            const companyIdNum = parseInt(companyId);
+            if (isNaN(companyIdNum)) {
+                res.status(400).json({ error: "companyId invalide" });
+                return;
+            }
+            // Vérifier que l'entreprise autorise l'impersonnation
+            const company = await this.authService.getCompanyById(companyIdNum);
+            if (!company) {
+                res.status(404).json({ error: "Entreprise non trouvée" });
+                return;
+            }
+            if (!company.allowImpersonation) {
+                res.status(403).json({ error: "L'impersonnation n'est pas autorisée pour cette entreprise" });
+                return;
+            }
+            // Créer un token d'impersonnation
+            const impersonationToken = await this.authService.createImpersonationToken(caller.id, companyIdNum);
+            res.json({
+                message: "Mode impersonnation activé",
+                impersonationToken,
+                company: {
+                    id: company.id,
+                    name: company.name,
+                    allowImpersonation: company.allowImpersonation
+                }
+            });
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+    async stopImpersonation(req, res) {
+        try {
+            const caller = req.user;
+            // Vérifier que l'utilisateur est SUPERADMIN
+            if (caller.role !== 'SUPERADMIN') {
+                res.status(403).json({ error: "Accès refusé - SUPERADMIN requis" });
+                return;
+            }
+            // Le token normal du SUPERADMIN sera utilisé pour revenir à l'état normal
+            res.json({ message: "Mode impersonnation désactivé" });
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
 }
 //# sourceMappingURL=authController.js.map

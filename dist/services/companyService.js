@@ -26,6 +26,8 @@ export class CompanyService {
             transformedData.currency = data.currency;
         if (data.periodType !== undefined)
             transformedData.periodType = data.periodType;
+        if (data.allowImpersonation !== undefined)
+            transformedData.allowImpersonation = data.allowImpersonation;
         return this.companyRepository.update(id, transformedData);
     }
     async deleteCompany(id) {

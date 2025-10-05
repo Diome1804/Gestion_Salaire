@@ -14,6 +14,7 @@ export interface ICompanyRepository {
         address?: string;
         currency?: string;
         periodType?: PeriodType;
+        allowImpersonation?: boolean;
     }): Promise<Company>;
     delete(id: number): Promise<void>;
     findAll(): Promise<Company[]>;

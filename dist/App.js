@@ -7,6 +7,7 @@ import employeeRoutes from "./routes/employeeRoutes.js";
 import payRunRoutes from "./routes/payRunRoutes.js";
 import payslipRoutes from "./routes/payslipRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import attendanceRoutes from "./routes/attendanceRoutes.js";
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -17,6 +18,7 @@ app.use("/employees", employeeRoutes);
 app.use("/payruns", payRunRoutes);
 app.use("/payslips", payslipRoutes);
 app.use("/payments", paymentRoutes);
+app.use("/attendance", attendanceRoutes);
 app.get("/", (_, res) => {
     res.json({ message: "API Salary Backend OK" });
 });

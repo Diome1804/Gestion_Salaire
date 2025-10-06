@@ -55,6 +55,7 @@ model Employee {
   company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   payslips      Payslip[]
   attendances   Attendance[]
+  workSchedules WorkSchedule[]
   createdAt     DateTime     @default(now())
 }
 
@@ -119,11 +120,35 @@ model Attendance {
   checkInTime  DateTime?
   checkOutTime DateTime?
   hoursWorked  Float     @default(0)
+  overtimeHours Float    @default(0)
   isPresent    Boolean   @default(false)
   scannedBy    Int?
   scannedByUser Users?   @relation(fields: [scannedBy], references: [id], onDelete: SetNull)
   notes        String?
+  breaks       Break[]
   createdAt    DateTime  @default(now())
+}
+
+model WorkSchedule {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  dayOfWeek  Int      // 0-6 (Sunday=0)
+  startTime  String   // HH:MM
+  endTime    String   // HH:MM
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Break {
+  id           Int        @id @default(autoincrement())
+  attendanceId Int
+  attendance   Attendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+  startTime    DateTime
+  endTime      DateTime?
+  type         String     @default("break") // lunch, break, etc.
+  duration     Float?     // in hours
+  createdAt    DateTime   @default(now())
 }
 
 enum Role {

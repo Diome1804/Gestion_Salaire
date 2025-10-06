@@ -1,13 +1,9 @@
 import { z } from "zod";
 export declare const registerSchema: z.ZodObject<{
     name: z.ZodString;
+    prenom: z.ZodOptional<z.ZodString>;
     email: z.ZodString;
     password: z.ZodString;
-    role: z.ZodOptional<z.ZodEnum<{
-        SUPERADMIN: "SUPERADMIN";
-        ADMIN: "ADMIN";
-        CAISSIER: "CAISSIER";
-    }>>;
 }, z.core.$strip>;
 export declare const loginSchema: z.ZodObject<{
     email: z.ZodString;
@@ -18,10 +14,12 @@ export declare const createUserSchema: z.ZodObject<{
     prenom: z.ZodOptional<z.ZodString>;
     email: z.ZodString;
     role: z.ZodEnum<{
+        SUPERADMIN: "SUPERADMIN";
         ADMIN: "ADMIN";
         CAISSIER: "CAISSIER";
+        VIGILE: "VIGILE";
     }>;
-    companyId: z.ZodOptional<z.ZodNumber>;
+    companyId: z.ZodNullable<z.ZodOptional<z.ZodNumber>>;
 }, z.core.$strip>;
 export declare const changePasswordSchema: z.ZodObject<{
     newPassword: z.ZodString;

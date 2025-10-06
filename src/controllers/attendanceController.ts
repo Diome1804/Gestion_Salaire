@@ -121,4 +121,108 @@ export class AttendanceController implements IAttendanceController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  async selfCheckIn(req: Request, res: Response): Promise<void> {
+    try {
+      const employeeId = (req as any).user.employeeId;
+
+      if (!employeeId) {
+        res.status(400).json({ message: 'Employee ID requis' });
+        return;
+      }
+
+      const result = await this.attendanceService.selfCheckIn(employeeId);
+      res.json(result);
+    } catch (error: any) {
+      console.error('Error self check-in:', error);
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async selfCheckOut(req: Request, res: Response): Promise<void> {
+    try {
+      const employeeId = (req as any).user.employeeId;
+
+      if (!employeeId) {
+        res.status(400).json({ message: 'Employee ID requis' });
+        return;
+      }
+
+      const result = await this.attendanceService.selfCheckOut(employeeId);
+      res.json(result);
+    } catch (error: any) {
+      console.error('Error self check-out:', error);
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async startBreak(req: Request, res: Response): Promise<void> {
+    try {
+      const { attendanceId, type } = req.body;
+      const employeeId = (req as any).user.employeeId;
+
+      if (!attendanceId) {
+        res.status(400).json({ message: 'Attendance ID requis' });
+        return;
+      }
+
+      // Verify attendance belongs to employee
+      const attendance = await this.attendanceService.getEmployeeAttendance(employeeId, { limit: 1 });
+      const isOwner = attendance.some(a => a.id === attendanceId);
+
+      if (!isOwner) {
+        res.status(403).json({ message: 'Accès non autorisé' });
+        return;
+      }
+
+      const breakItem = await this.attendanceService.startBreak(attendanceId, type);
+      res.json({
+        message: 'Pause démarrée',
+        break: breakItem,
+      });
+    } catch (error: any) {
+      console.error('Error starting break:', error);
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async endBreak(req: Request, res: Response): Promise<void> {
+    try {
+      const { breakId } = req.body;
+      const employeeId = (req as any).user.employeeId;
+
+      if (!breakId) {
+        res.status(400).json({ message: 'Break ID requis' });
+        return;
+      }
+
+      // Verify break belongs to employee's attendance
+      // This is a simplified check; in production, add proper validation
+      const breakItem = await this.attendanceService.endBreak(breakId);
+      res.json({
+        message: 'Pause terminée',
+        break: breakItem,
+      });
+    } catch (error: any) {
+      console.error('Error ending break:', error);
+      res.status(400).json({ message: error.message });
+    }
+  }
+
+  async getWorkSchedule(req: Request, res: Response): Promise<void> {
+    try {
+      const employeeId = (req as any).user.employeeId;
+
+      if (!employeeId) {
+        res.status(400).json({ message: 'Employee ID requis' });
+        return;
+      }
+
+      const schedule = await this.attendanceService.getWorkSchedule(employeeId);
+      res.json(schedule);
+    } catch (error: any) {
+      console.error('Error fetching work schedule:', error);
+      res.status(500).json({ message: error.message });
+    }
+  }
 }

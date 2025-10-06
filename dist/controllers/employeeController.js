@@ -1,13 +1,22 @@
 import { createEmployeeSchema, updateEmployeeSchema } from "../validations/employee.js";
+import { v4 as uuidv4 } from 'uuid';
+import prisma from "../config/prisma.js";
 export class EmployeeController {
     employeeService;
-    constructor(employeeService) {
+    emailService;
+    constructor(employeeService, emailService) {
         this.employeeService = employeeService;
+        this.emailService = emailService;
     }
     async createEmployee(req, res) {
         try {
             const data = createEmployeeSchema.parse(req.body);
             const caller = req.user;
+            // Validate email is provided
+            if (!data.email || !data.email.trim()) {
+                res.status(400).json({ error: "L'email est obligatoire pour tous les employés" });
+                return;
+            }
             // Set companyId for ADMIN
             if (caller.role === "ADMIN") {
                 data.companyId = caller.companyId;
@@ -19,7 +28,32 @@ export class EmployeeController {
                 }
             }
             const employee = await this.employeeService.createEmployee(data);
-            res.json({ message: "Employé créé", employee });
+            // Automatically generate QR code after employee creation
+            try {
+                const { v4: uuidv4 } = await import('uuid');
+                const qrCode = `EMP-${employee.id}-${uuidv4()}`;
+                await prisma.employee.update({
+                    where: { id: employee.id },
+                    data: { qrCode },
+                });
+                // Send QR code by email
+                if (this.emailService) {
+                    await this.emailService.sendQRCode(employee, qrCode);
+                }
+                res.json({
+                    message: "Employé créé et code QR envoyé par email",
+                    employee: { ...employee, qrCode },
+                    qrCodeSent: true
+                });
+            }
+            catch (qrError) {
+                console.error('Error generating/sending QR code:', qrError);
+                res.json({
+                    message: "Employé créé mais erreur lors de l'envoi du code QR",
+                    employee,
+                    qrCodeSent: false
+                });
+            }
         }
         catch (error) {
             res.status(400).json({ error: error.message });
@@ -154,6 +188,70 @@ export class EmployeeController {
         }
         catch (error) {
             res.status(400).json({ error: error.message });
+        }
+    }
+    async generateQRCode(req, res) {
+        try {
+            const { id } = req.params;
+            if (!id)
+                throw new Error("ID manquant");
+            const employeeId = parseInt(id);
+            if (isNaN(employeeId))
+                throw new Error("ID invalide");
+            const employee = await prisma.employee.findUnique({
+                where: { id: employeeId },
+            });
+            if (!employee) {
+                res.status(404).json({ message: 'Employé non trouvé' });
+                return;
+            }
+            if (!employee.email) {
+                res.status(400).json({
+                    message: 'L\'employé doit avoir une adresse email pour recevoir le code QR'
+                });
+                return;
+            }
+            // Generate unique QR code
+            const qrCode = `EMP-${employee.id}-${uuidv4()}`;
+            // Update employee with QR code
+            await prisma.employee.update({
+                where: { id: employeeId },
+                data: { qrCode },
+            });
+            // Send QR code by email
+            if (this.emailService) {
+                await this.emailService.sendQRCode(employee, qrCode);
+            }
+            res.json({
+                message: 'Code QR généré et envoyé par email avec succès',
+                qrCodeSent: true,
+            });
+        }
+        catch (error) {
+            console.error('Error generating QR code:', error);
+            res.status(500).json({ message: error.message || 'Erreur lors de la génération du code QR' });
+        }
+    }
+    async getQRCode(req, res) {
+        try {
+            const { id } = req.params;
+            if (!id)
+                throw new Error("ID manquant");
+            const employeeId = parseInt(id);
+            if (isNaN(employeeId))
+                throw new Error("ID invalide");
+            const employee = await prisma.employee.findUnique({
+                where: { id: employeeId },
+                select: { qrCode: true },
+            });
+            if (!employee) {
+                res.status(404).json({ message: 'Employé non trouvé' });
+                return;
+            }
+            res.json({ qrCode: employee.qrCode });
+        }
+        catch (error) {
+            res.status(500).json({ message: error.message || 'Erreur lors de la récupération du code QR' });
         }
     }
 }

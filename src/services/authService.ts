@@ -66,7 +66,7 @@ export class AuthService implements IAuthService {
       } else {
         // Send standard email for ADMIN/CAISSIER
         const subject = "Vos informations de connexion";
-        const loginUrl = data.role === 'VIGILE' 
+        const loginUrl = data.role === ('VIGILE' as Role)
           ? `${process.env.FRONTEND_URL || 'http://localhost:5173'}/vigile/login`
           : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
         

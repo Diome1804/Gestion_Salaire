@@ -5,6 +5,10 @@ export class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
     async createEmployee(data) {
+        // Validate email is provided
+        if (!data.email || !data.email.trim()) {
+            throw new Error("L'email est obligatoire pour tous les employés");
+        }
         return this.employeeRepository.create(data);
     }
     async updateEmployee(id, data) {

@@ -18,5 +18,9 @@ router.patch("/:id/activate", authorize(["SUPERADMIN", "ADMIN"]), employeeContro
 router.patch("/:id/deactivate", authorize(["SUPERADMIN", "ADMIN"]), employeeController.deactivateEmployee.bind(employeeController));
 // Delete employee - SUPERADMIN only
 router.delete("/:id", authorize(["SUPERADMIN"]), employeeController.deleteEmployee.bind(employeeController));
+// Generate QR code for employee - SUPERADMIN or ADMIN
+router.post("/:id/generate-qr", authorize(["SUPERADMIN", "ADMIN"]), employeeController.generateQRCode.bind(employeeController));
+// Get employee QR code - SUPERADMIN or ADMIN
+router.get("/:id/qr", authorize(["SUPERADMIN", "ADMIN"]), employeeController.getQRCode.bind(employeeController));
 export default router;
 //# sourceMappingURL=employeeRoutes.js.map

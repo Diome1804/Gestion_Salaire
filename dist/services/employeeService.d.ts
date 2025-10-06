@@ -10,6 +10,8 @@ export declare class EmployeeService implements IEmployeeService {
         contractType: ContractType;
         rateOrSalary: number;
         bankDetails?: string;
+        email: string;
+        matricule?: string;
         companyId: number;
     }): Promise<EmployeeModel>;
     updateEmployee(id: number, data: Partial<{
@@ -18,6 +20,8 @@ export declare class EmployeeService implements IEmployeeService {
         contractType: ContractType;
         rateOrSalary: number;
         bankDetails: string;
+        email: string;
+        matricule: string;
     }>): Promise<EmployeeModel>;
     getAllEmployees(filters?: {
         companyId?: number;

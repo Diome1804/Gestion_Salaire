@@ -47,20 +47,43 @@ export class AuthService {
         const tempPassword = this.generateTempPassword();
         const hashed = await this.hashUtils.hashPassword(tempPassword);
         const user = await this.userRepository.create({ ...data, password: hashed, isTempPassword: true });
-        // Send email (async to not block user creation)
-        const subject = "Vos informations de connexion";
-        const html = `
-      <h1>Bienvenue dans Gestion Salaire</h1>
-      <p>Votre compte a été créé avec succès.</p>
-      <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>Mot de passe temporaire:</strong> ${tempPassword}</p>
-      <p>Veuillez vous connecter et changer votre mot de passe immédiatement.</p>
-      <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}">Se connecter</a>
-    `;
-        // Don't await to prevent timeout blocking user creation
-        this.emailService.sendEmail(data.email, subject, html).catch(error => {
+        // Send appropriate email based on role
+        try {
+            if (data.role === 'VIGILE') {
+                // Send vigile-specific email with login URL
+                await this.emailService.sendVigileCredentials(user, tempPassword);
+            }
+            else {
+                // Send standard email for ADMIN/CAISSIER
+                const subject = "Vos informations de connexion";
+                const loginUrl = data.role === 'VIGILE'
+                    ? `${process.env.FRONTEND_URL || 'http://localhost:5173'}/vigile/login`
+                    : `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
+                const html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #2563eb;">Bienvenue dans Gestion Salaire</h1>
+            <p>Votre compte a été créé avec succès.</p>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Mot de passe temporaire:</strong> <code style="background-color: #e5e7eb; padding: 4px 8px; border-radius: 4px;">${tempPassword}</code></p>
+              <p><strong>Rôle:</strong> ${data.role}</p>
+            </div>
+            <p>Veuillez vous connecter et changer votre mot de passe immédiatement.</p>
+            <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; margin: 20px 0;">Se connecter</a>
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;" />
+            <p style="color: #6b7280; font-size: 12px;">
+              Cet email a été envoyé automatiquement par le système de gestion des salaires.
+            </p>
+          </div>
+        `;
+                await this.emailService.sendEmail(data.email, subject, html);
+            }
+            console.log(`Email sent successfully to ${data.email} for role ${data.role}`);
+        }
+        catch (error) {
             console.error('Failed to send email:', error);
-        });
+            // Don't throw error to prevent user creation from failing
+        }
         return user;
     }
     async changePassword(userId, newPassword) {

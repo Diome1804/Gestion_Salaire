@@ -33,6 +33,7 @@ export declare class AuthService implements IAuthService {
     private generateTempPassword;
     createUserBySuperAdmin(data: {
         name: string;
+        prenom?: string;
         email: string;
         role: Role;
         companyId: number | null;

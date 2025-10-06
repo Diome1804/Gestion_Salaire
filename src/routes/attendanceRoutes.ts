@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AttendanceController } from "../controllers/attendanceController.js";
 import { AttendanceService } from "../services/attendanceService.js";
-import { authenticate } from "../middlewares/authenticate.js";
+import { authenticate } from "../middlewares/auth.js";
 import { requireRole } from "../middlewares/requireRole.js";
 
 const router = Router();
@@ -45,6 +45,36 @@ router.get(
   "/report",
   requireRole(["ADMIN", "SUPERADMIN"]),
   (req, res) => attendanceController.getAttendanceReport(req, res)
+);
+
+// Self check-in (authenticated users)
+router.post(
+  "/checkin",
+  (req, res) => attendanceController.selfCheckIn(req, res)
+);
+
+// Self check-out (authenticated users)
+router.post(
+  "/checkout",
+  (req, res) => attendanceController.selfCheckOut(req, res)
+);
+
+// Start break (authenticated users)
+router.post(
+  "/break/start",
+  (req, res) => attendanceController.startBreak(req, res)
+);
+
+// End break (authenticated users)
+router.post(
+  "/break/end",
+  (req, res) => attendanceController.endBreak(req, res)
+);
+
+// Get work schedule (authenticated users)
+router.get(
+  "/schedule",
+  (req, res) => attendanceController.getWorkSchedule(req, res)
 );
 
 export default router;

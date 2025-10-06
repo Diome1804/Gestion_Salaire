@@ -25,26 +25,63 @@ export class EmailService implements IEmailService {
   }
 
   async sendQRCode(employee: any, qrCodeData: string): Promise<void> {
-    // Generate QR code image
-    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+    try {
+      console.log('Generating QR code for employee:', employee.fullName, 'with data:', qrCodeData);
 
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">Bonjour ${employee.fullName},</h2>
-        <p>Voici votre code QR pour le pointage:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <img src="${qrCodeImage}" alt="QR Code" style="max-width: 300px;" />
+      // Generate QR code image
+      const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+      console.log('QR code generated successfully, data URL length:', qrCodeImage.length);
+
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Bonjour ${employee.fullName},</h2>
+          <p>Voici votre code QR pour le pointage:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <img src="${qrCodeImage}" alt="QR Code pour ${employee.fullName}" style="max-width: 300px; border: 2px solid #e5e7eb; border-radius: 8px;" />
+          </div>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0; font-weight: bold;">Code QR: <code style="background-color: #e9ecef; padding: 2px 6px; border-radius: 4px;">${qrCodeData}</code></p>
+          </div>
+          <p><strong>Instructions:</strong></p>
+          <ul>
+            <li>Présentez ce code QR au vigile pour pointer votre présence</li>
+            <li>Le code est unique et personnel</li>
+            <li>Conservez cet email en sécurité</li>
+          </ul>
+          <p style="color: #dc2626;"><strong>Important:</strong> Gardez ce code confidentiel et ne le partagez pas.</p>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;" />
+          <p style="color: #6b7280; font-size: 12px;">
+            Cet email a été envoyé automatiquement par le système de gestion des salaires.
+          </p>
         </div>
-        <p>Présentez ce code au vigile pour pointer votre présence à l'entrée et à la sortie.</p>
-        <p style="color: #dc2626;"><strong>Important:</strong> Gardez ce code confidentiel.</p>
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;" />
-        <p style="color: #6b7280; font-size: 12px;">
-          Cet email a été envoyé automatiquement par le système de gestion des salaires.
-        </p>
-      </div>
-    `;
+      `;
 
-    await this.sendEmail(employee.email, 'Votre Code QR de Pointage', html);
+      console.log('Sending QR code email to:', employee.email);
+      await this.sendEmail(employee.email, 'Votre Code QR de Pointage', html);
+      console.log('QR code email sent successfully');
+
+    } catch (error) {
+      console.error('Error sending QR code email:', error);
+      // Fallback: send email with text QR code only
+      const fallbackHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Bonjour ${employee.fullName},</h2>
+          <p>Voici votre code QR pour le pointage:</p>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; font-family: monospace; font-size: 14px;">
+            <strong>Code QR Text:</strong><br>
+            ${qrCodeData}
+          </div>
+          <p>Présentez ce code au vigile pour pointer votre présence à l'entrée et à la sortie.</p>
+          <p style="color: #dc2626;"><strong>Note:</strong> Une erreur technique empêche l'affichage de l'image QR. Utilisez le code texte ci-dessus.</p>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;" />
+          <p style="color: #6b7280; font-size: 12px;">
+            Cet email a été envoyé automatiquement par le système de gestion des salaires.
+          </p>
+        </div>
+      `;
+
+      await this.sendEmail(employee.email, 'Votre Code QR de Pointage', fallbackHtml);
+    }
   }
 
   async sendVigileCredentials(vigile: any, tempPassword: string): Promise<void> {

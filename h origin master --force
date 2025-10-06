@@ -1,0 +1,56 @@
+* [33mdc1d42a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Système de Pointage
+[31m|[m * [33m6b0bd06[m[33m ([m[1;31morigin/master[m[33m)[m dzhefzffzrf
+[31m|[m[31m/[m  
+* [33mc0f1143[m bou bess1
+* [33mc66df6e[m bou bess
+* [33m6afcbf9[m ll
+* [33md41365e[m jj
+* [33mc8f9a83[m gestion presence
+* [33m291f521[m feat:impersonnation1
+* [33m644a4f6[m feat:impersonnation
+* [33mc292178[m deuxieme fonctionnalite
+* [33m2dea01a[m implémentation d'une autre fonctionnalité
+* [33mde4352c[m testel bi tmt
+* [33m2bfcf93[m mongui nieuw je crois
+* [33mc80481b[m ereur typescript
+* [33me7b3c61[m pourque les pdfs marchent
+* [33md1ed7d6[m pour gérer le paiement
+* [33m6e64139[m yokate na dara d
+* [33mdaa5663[m ah deff na dall
+* [33md417c66[m sou dohoul dieuleul bénéne bi
+* [33mb6aab9d[m ajout de la permission pour le caissier sur les employees
+* [33m9f8237b[m paiement
+* [33m1d3bb08[m rgelage pdf v1
+* [33m6557a8d[m rgelage pdf
+* [33me89e90c[m gestion des buletin de pay
+* [33m1e13cc2[m pffff
+* [33md920bca[m pffff
+* [33m9a4bde4[m pffff
+* [33ma52ec58[m gestion employe
+* [33m363af28[m supprimer admin
+* [33m19e1cff[m cors1
+* [33m7516a38[m cors
+* [33mb86f6e1[m commit
+* [33me7d2cf3[m Mon travail en cours
+* [33m121200b[m les dieuleul
+* [33m7a544a6[m add
+* [33mfebe9e7[m mise à jour
+* [33mfadca55[m Add
+* [33m4c0f529[m Add
+* [33m5bd2658[m Add
+* [33md4f3da1[m Add
+* [33m6e6203d[m Add
+* [33m02833e1[m Add build script for Render deployment
+* [33md88326e[m Add build script for Render deployment
+* [33m75b53d0[m Add build script for Render deployment
+* [33ma09a7b8[m Add default value to name field in Company schema
+* [33m30224f6[m Add name field to Company model and implement logo upload with Cloudinary
+* [33m85cd0f1[m Add logo upload for company create and update using Multer and Cloudinary
+* [33m33ce164[m Add build script for Render deployment
+* [33me6062ae[m Add build script for Render deployment
+* [33md0441e8[m kkk
+* [33md26101e[m kkk
+* [33m875a6ce[m Rename index.ts to server.ts for Render deployment
+* [33m5441959[m Add build script for Render deployment
+* [33m1cc6c5b[m lst commit
+* [33mb464a52[m first commit

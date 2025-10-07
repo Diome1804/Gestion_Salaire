@@ -3,7 +3,6 @@
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-  
 }
  
 generator client {
@@ -34,6 +33,10 @@ model Company {
   currency   String
   periodType PeriodType
   allowImpersonation Boolean @default(false)
+  // Salary rates configuration
+  hourlyRate     Float   @default(0)    // Default hourly rate for the company
+  dailyRate      Float   @default(0)    // Default daily rate for the company
+  overtimeRate   Float   @default(1.5)  // Overtime multiplier (default 1.5x)
   users      Users[]
   employees  Employee[]
   payRuns    PayRun[]
@@ -53,6 +56,10 @@ model Employee {
   isActive      Boolean      @default(true)
   companyId     Int
   company       Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  // Custom salary rates (optional - overrides company rates)
+  customHourlyRate   Float?
+  customDailyRate    Float?
+  customOvertimeRate Float?
   payslips      Payslip[]
   attendances   Attendance[]
   workSchedules WorkSchedule[]

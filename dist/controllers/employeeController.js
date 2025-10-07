@@ -1,6 +1,7 @@
 import { createEmployeeSchema, updateEmployeeSchema } from "../validations/employee.js";
 import { v4 as uuidv4 } from 'uuid';
 import prisma from "../config/prisma.js";
+import { SalaryCalculatorService } from "../services/salaryCalculatorService.js";
 export class EmployeeController {
     employeeService;
     emailService;
@@ -36,22 +37,25 @@ export class EmployeeController {
                     where: { id: employee.id },
                     data: { qrCode },
                 });
-                // Send QR code by email
-                if (this.emailService) {
-                    await this.emailService.sendQRCode(employee, qrCode);
-                }
+                // Generate QR code data URL for frontend display
+                const QRCode = (await import('qrcode')).default;
+                const qrCodeImage = await QRCode.toDataURL(qrCode);
                 res.json({
-                    message: "Employé créé et code QR envoyé par email",
+                    message: "Employé créé avec succès",
                     employee: { ...employee, qrCode },
-                    qrCodeSent: true
+                    qrCode: {
+                        text: qrCode,
+                        imageData: qrCodeImage
+                    }
                 });
             }
             catch (qrError) {
-                console.error('Error generating/sending QR code:', qrError);
+                console.error('Error generating QR code:', qrError);
+                // Fallback: return employee without QR code
                 res.json({
-                    message: "Employé créé mais erreur lors de l'envoi du code QR",
+                    message: "Employé créé mais erreur lors de la génération du code QR",
                     employee,
-                    qrCodeSent: false
+                    qrCode: null
                 });
             }
         }
@@ -218,13 +222,15 @@ export class EmployeeController {
                 where: { id: employeeId },
                 data: { qrCode },
             });
-            // Send QR code by email
-            if (this.emailService) {
-                await this.emailService.sendQRCode(employee, qrCode);
-            }
+            // Generate QR code data URL for frontend display
+            const QRCode = (await import('qrcode')).default;
+            const qrCodeImage = await QRCode.toDataURL(qrCode);
             res.json({
-                message: 'Code QR généré et envoyé par email avec succès',
-                qrCodeSent: true,
+                message: 'Code QR généré avec succès',
+                qrCode: {
+                    text: qrCode,
+                    imageData: qrCodeImage
+                }
             });
         }
         catch (error) {
@@ -252,6 +258,121 @@ export class EmployeeController {
         }
         catch (error) {
             res.status(500).json({ message: error.message || 'Erreur lors de la récupération du code QR' });
+        }
+    }
+    async getQRCodeWithImage(req, res) {
+        try {
+            const { id } = req.params;
+            if (!id)
+                throw new Error("ID manquant");
+            const employeeId = parseInt(id);
+            if (isNaN(employeeId))
+                throw new Error("ID invalide");
+            const employee = await prisma.employee.findUnique({
+                where: { id: employeeId },
+                select: { id: true, fullName: true, qrCode: true },
+            });
+            if (!employee) {
+                res.status(404).json({ message: 'Employé non trouvé' });
+                return;
+            }
+            if (!employee.qrCode) {
+                res.status(404).json({ message: 'Aucun code QR trouvé pour cet employé' });
+                return;
+            }
+            // Generate QR code data URL for frontend display
+            const QRCode = (await import('qrcode')).default;
+            const qrCodeImage = await QRCode.toDataURL(employee.qrCode);
+            res.json({
+                employee: {
+                    id: employee.id,
+                    fullName: employee.fullName,
+                    qrCode: employee.qrCode
+                },
+                qrCode: {
+                    text: employee.qrCode,
+                    imageData: qrCodeImage
+                }
+            });
+        }
+        catch (error) {
+            res.status(500).json({ message: error.message || 'Erreur lors de la récupération du code QR' });
+        }
+    }
+    async updateEmployeeRates(req, res) {
+        try {
+            const caller = req.user;
+            if (!req.params.id) {
+                res.status(400).json({ error: "ID manquant" });
+                return;
+            }
+            const employeeId = parseInt(req.params.id);
+            // Vérifier que l'utilisateur est admin de l'entreprise de cet employé ou SUPERADMIN
+            const employee = await this.employeeService.getEmployeeById(employeeId);
+            if (!employee) {
+                res.status(404).json({ error: "Employé non trouvé" });
+                return;
+            }
+            if (caller.role !== 'SUPERADMIN' && caller.companyId !== employee.companyId) {
+                res.status(403).json({ error: "Accès refusé" });
+                return;
+            }
+            const { hourlyRate, dailyRate, overtimeRate } = req.body;
+            // Validation des données
+            if (hourlyRate !== undefined && (typeof hourlyRate !== 'number' || hourlyRate < 0)) {
+                res.status(400).json({ error: "Le tarif horaire doit être un nombre positif" });
+                return;
+            }
+            if (dailyRate !== undefined && (typeof dailyRate !== 'number' || dailyRate < 0)) {
+                res.status(400).json({ error: "Le tarif journalier doit être un nombre positif" });
+                return;
+            }
+            if (overtimeRate !== undefined && (typeof overtimeRate !== 'number' || overtimeRate < 1)) {
+                res.status(400).json({ error: "Le taux d'heures supplémentaires doit être supérieur ou égal à 1" });
+                return;
+            }
+            const salaryCalculator = new SalaryCalculatorService();
+            await salaryCalculator.updateEmployeeRates(employeeId, {
+                hourlyRate,
+                dailyRate,
+                overtimeRate
+            });
+            res.json({ message: "Tarifs de l'employé mis à jour avec succès" });
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+    async getEmployeeRates(req, res) {
+        try {
+            const caller = req.user;
+            if (!req.params.id) {
+                res.status(400).json({ error: "ID manquant" });
+                return;
+            }
+            const employeeId = parseInt(req.params.id);
+            // Vérifier que l'utilisateur est admin de l'entreprise de cet employé ou SUPERADMIN
+            const employee = await this.employeeService.getEmployeeById(employeeId);
+            if (!employee) {
+                res.status(404).json({ error: "Employé non trouvé" });
+                return;
+            }
+            if (caller.role !== 'SUPERADMIN' && caller.companyId !== employee.companyId) {
+                res.status(403).json({ error: "Accès refusé" });
+                return;
+            }
+            const salaryCalculator = new SalaryCalculatorService();
+            const rates = await salaryCalculator.getAllRates(employeeId);
+            res.json({
+                employee: {
+                    id: employee.id,
+                    fullName: employee.fullName
+                },
+                rates
+            });
+        }
+        catch (error) {
+            res.status(400).json({ error: error.message });
         }
     }
 }

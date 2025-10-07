@@ -15,5 +15,8 @@ export declare class EmployeeController implements IEmployeeController {
     deactivateEmployee(req: Request, res: Response): Promise<void>;
     generateQRCode(req: Request, res: Response): Promise<void>;
     getQRCode(req: Request, res: Response): Promise<void>;
+    getQRCodeWithImage(req: Request, res: Response): Promise<void>;
+    updateEmployeeRates(req: Request, res: Response): Promise<void>;
+    getEmployeeRates(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=employeeController.d.ts.map

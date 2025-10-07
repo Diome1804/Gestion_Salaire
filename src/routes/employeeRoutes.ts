@@ -34,4 +34,11 @@ router.post("/:id/generate-qr", authorize(["SUPERADMIN", "ADMIN"]), employeeCont
 // Get employee QR code - SUPERADMIN or ADMIN
 router.get("/:id/qr", authorize(["SUPERADMIN", "ADMIN"]), employeeController.getQRCode.bind(employeeController));
 
+// Get employee QR code with image data - SUPERADMIN or ADMIN
+router.get("/:id/qr-image", authorize(["SUPERADMIN", "ADMIN"]), employeeController.getQRCodeWithImage.bind(employeeController));
+
+// Employee salary rates management - SUPERADMIN or ADMIN
+router.put("/:id/rates", authorize(["SUPERADMIN", "ADMIN"]), employeeController.updateEmployeeRates.bind(employeeController));
+router.get("/:id/rates", authorize(["SUPERADMIN", "ADMIN"]), employeeController.getEmployeeRates.bind(employeeController));
+
 export default router;

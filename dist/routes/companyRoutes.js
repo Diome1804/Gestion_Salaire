@@ -9,6 +9,9 @@ router.post("/create", authenticate, authorize(["SUPERADMIN"]), upload.single("l
 router.get("/", authenticate, authorize(["SUPERADMIN"]), (req, res) => companyController.getAllCompanies(req, res));
 // Route for impersonation permission - superadmin and company admin (MUST be before /:id routes)
 router.put("/:id/impersonation", authenticate, authorize(["SUPERADMIN", "ADMIN"]), (req, res) => companyController.toggleImpersonationPermission(req, res));
+// Salary rates management - superadmin and company admin
+router.put("/:id/rates", authenticate, authorize(["SUPERADMIN", "ADMIN"]), (req, res) => companyController.updateCompanyRates(req, res));
+router.get("/:id/rates", authenticate, authorize(["SUPERADMIN", "ADMIN"]), (req, res) => companyController.getCompanyRates(req, res));
 // Specific ID routes (MUST be after specific paths like /:id/impersonation)
 router.get("/:id", authenticate, authorize(["SUPERADMIN"]), (req, res) => companyController.getCompany(req, res));
 router.put("/:id", authenticate, authorize(["SUPERADMIN"]), upload.single("logo"), (req, res) => companyController.updateCompany(req, res));

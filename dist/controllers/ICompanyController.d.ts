@@ -6,5 +6,7 @@ export interface ICompanyController {
     deleteCompany(req: Request, res: Response): Promise<void>;
     getAllCompanies(req: Request, res: Response): Promise<void>;
     toggleImpersonationPermission(req: Request, res: Response): Promise<void>;
+    updateCompanyRates(req: Request, res: Response): Promise<void>;
+    getCompanyRates(req: Request, res: Response): Promise<void>;
 }
 //# sourceMappingURL=ICompanyController.d.ts.map

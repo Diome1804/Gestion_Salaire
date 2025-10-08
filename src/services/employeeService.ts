@@ -22,8 +22,11 @@ export class EmployeeService implements IEmployeeService {
     }
     
     // For HONORAIRE employees, force rate to 1000 FCFA per day
+    // For DAILY employees, force rate to 3000 FCFA per day
     if (data.contractType === 'HONORAIRE') {
       data.rateOrSalary = 1000;
+    } else if (data.contractType === 'DAILY') {
+      data.rateOrSalary = 3000;
     }
     
     return this.employeeRepository.create(data);
@@ -42,8 +45,11 @@ export class EmployeeService implements IEmployeeService {
     if (!employee) throw new Error("Employé non trouvé");
 
     // For HONORAIRE employees, force rate to 1000 FCFA per day
+    // For DAILY employees, force rate to 3000 FCFA per day
     if (data.contractType === 'HONORAIRE') {
       data.rateOrSalary = 1000;
+    } else if (data.contractType === 'DAILY') {
+      data.rateOrSalary = 3000;
     }
 
     return this.employeeRepository.update(id, data);

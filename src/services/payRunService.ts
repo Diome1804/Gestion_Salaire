@@ -207,9 +207,9 @@ export class PayRunService implements IPayRunService {
         break;
 
       case 'DAILY':
-        // For daily workers, calculate based on attendance
+        // For daily workers: 3000 FCFA per day worked
         const attendanceDays = await this.calculateAttendanceDays(employee.id, startDate, endDate);
-        gross = employee.rateOrSalary * attendanceDays;
+        gross = 3000 * attendanceDays;
         break;
 
       case 'FREELANCE':

@@ -216,6 +216,12 @@ export class PayRunService implements IPayRunService {
         gross = employee.rateOrSalary;
         break;
 
+      case 'HONORAIRE':
+        // For HONORAIRE workers: 1000 FCFA per day worked
+        const honoraireDays = await this.calculateAttendanceDays(employee.id, startDate, endDate);
+        gross = 1000 * honoraireDays;
+        break;
+
       default:
         gross = 0;
     }

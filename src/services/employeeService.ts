@@ -20,6 +20,12 @@ export class EmployeeService implements IEmployeeService {
     if (!data.email || !data.email.trim()) {
       throw new Error("L'email est obligatoire pour tous les employés");
     }
+    
+    // For HONORAIRE employees, force rate to 1000 FCFA per day
+    if (data.contractType === 'HONORAIRE') {
+      data.rateOrSalary = 1000;
+    }
+    
     return this.employeeRepository.create(data);
   }
 
@@ -34,6 +40,11 @@ export class EmployeeService implements IEmployeeService {
   }>): Promise<EmployeeModel> {
     const employee = await this.employeeRepository.findById(id);
     if (!employee) throw new Error("Employé non trouvé");
+
+    // For HONORAIRE employees, force rate to 1000 FCFA per day
+    if (data.contractType === 'HONORAIRE') {
+      data.rateOrSalary = 1000;
+    }
 
     return this.employeeRepository.update(id, data);
   }
